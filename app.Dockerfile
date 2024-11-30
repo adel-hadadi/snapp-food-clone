@@ -1,15 +1,9 @@
-FROM golang:1.23 AS build
+FROM alpine:latest
 
 WORKDIR /src
 
-COPY . .
+COPY webApp .
 
-RUN cd cmd/api && env GOOS=linux CGO_ENABLED=0 go build -o /bin/app ./main.go
+COPY .env .
 
-FROM alpine:latest
-
-COPY --from=build /bin/app /bin/app
-
-CMD ["/bin/app"]
-
-
+CMD [ "./webApp" ]

@@ -1,21 +1,20 @@
 package http
 
 import (
-	"fmt"
-	"net/http"
+	"snapp-food/cmd/app"
+	"snapp-food/pkg/server"
 )
 
 type HttpServer struct {
+	Handlers app.Handlers
 }
 
-func New() HttpServer {
-	return HttpServer{}
-}
-
-func (s HttpServer) Run() {
-	srv := &http.Server{}
-
-	if err := srv.ListenAndServe(); err != nil {
-		panic(fmt.Errorf("error on start serving: %w", err))
+func New(handlers app.Handlers) HttpServer {
+	return HttpServer{
+		Handlers: handlers,
 	}
+}
+
+func (s HttpServer) Run(port string) {
+	server.RunHttpServerOnAddr(port, s.setRoutes)
 }

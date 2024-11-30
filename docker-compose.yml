@@ -3,4 +3,6 @@ services:
     build:
       context: .
       dockerfile: app.Dockerfile
+    ports:
+      - "80:80"
 

@@ -1,12 +1,19 @@
 package app
 
+import "snapp-food/internal/delivery/http/handler"
+
 type Application struct {
-	Services Services
+	Handlers Handlers
 }
 
-type Services struct {
+type Handlers struct {
+	Auth handler.AuthHandler
 }
 
 func New() Application {
-	return Application{}
+	return Application{
+		Handlers: Handlers{
+			Auth: handler.NewAuthHandler(),
+		},
+	}
 }
