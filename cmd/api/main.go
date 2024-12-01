@@ -5,6 +5,7 @@ import (
 	"os"
 	"snapp-food/cmd/app"
 	"snapp-food/internal/delivery/http"
+	"snapp-food/pkg/validate"
 
 	"github.com/joho/godotenv"
 )
@@ -16,7 +17,9 @@ func main() {
 		panic(fmt.Errorf(ErrLoadConfigFile, err))
 	}
 
-	app := app.New()
+	validator := validate.New()
+
+	app := app.New(validator)
 
 	http.New(app.Handlers).Run(os.Getenv("PORT"))
 }

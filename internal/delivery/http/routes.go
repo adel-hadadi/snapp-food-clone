@@ -7,7 +7,10 @@ import (
 )
 
 func (s HttpServer) setRoutes(router chi.Router) http.Handler {
-	router.Get("/auth/login", s.Handlers.Auth.Login)
+	router.Route("/auth", func(r chi.Router) {
+		r.Post("/login", s.Handlers.Auth.Login)
+		r.Post("/register", s.Handlers.Auth.Register)
+	})
 
 	return router
 }
