@@ -5,9 +5,19 @@ services:
       dockerfile: app.Dockerfile
     ports:
       - "80:80"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - snapp-food
 
   postgres:
     image: "postgres:15.4"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -d ${DB_NAME} -U ${DB_USERNAME}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     environment:
       POSTGRES_USER: ${DB_USERNAME}
       POSTGRES_PASSWORD: ${DB_PASSWORD}
@@ -18,7 +28,26 @@ services:
       - postgresql:/data/postgres
     ports:
       - "5432:5432"
+    networks:
+      - snapp-food
+
+  migrate:
+    image: ghcr.io/kukymbr/goose-docker
+    container_name: migrator
+    environment:
+      - GOOSE_DRIVER=postgres
+      - GOOSE_DBSTRING=host=${DB_HOST} user=${DB_USERNAME} password=${DB_PASSWORD} dbname=${DB_NAME}
+      - GOOSE_COMMAND=${GOOSE_COMMAND}
+      - GOOSE_COMMAND_ARG=${GOOSE_COMMAND_ARG}
+    volumes:
+      - ./data/database/migrations:/migrations
+    networks:
+      - snapp-food
 
 volumes:
   postgresql:
     driver: local
+
+networks:
+  snapp-food:
+    driver: bridge

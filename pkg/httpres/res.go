@@ -6,10 +6,10 @@ import (
 )
 
 type Response struct {
-	Success bool              `json:"success"`
-	Data    any               `json:"data,omitempty"`
-	Message string            `json:"message"`
-	Errors  map[string]string `json:"errors,omitempty"`
+	Success bool   `json:"success"`
+	Data    any    `json:"data,omitempty"`
+	Message string `json:"message"`
+	Errors  any    `json:"errors,omitempty"`
 }
 
 func Success(w http.ResponseWriter, data any, status int) {
@@ -25,7 +25,7 @@ func Success(w http.ResponseWriter, data any, status int) {
 	w.Write(bytes)
 }
 
-func ValidationErr(w http.ResponseWriter, errs map[string]string, status int) {
+func ValidationErr(w http.ResponseWriter, errs any, status int) {
 	res := Response{
 		Success: false,
 		Errors:  errs,
@@ -35,5 +35,19 @@ func ValidationErr(w http.ResponseWriter, errs map[string]string, status int) {
 
 	bytes, _ := json.Marshal(res)
 
+	w.Write(bytes)
+}
+
+func WithErr(w http.ResponseWriter, err error) {
+	code, err := toHTTPCode(err)
+
+	res := Response{
+		Success: false,
+		Message: err.Error(),
+	}
+
+	bytes, _ := json.Marshal(res)
+
+	w.WriteHeader(code)
 	w.Write(bytes)
 }

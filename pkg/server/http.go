@@ -19,6 +19,8 @@ func RunHttpServerOnAddr(port string, createHandler func(router chi.Router) http
 
 	rootRouter := chi.NewRouter()
 
+	setMiddleware(rootRouter)
+
 	createHandler(apiRouter)
 
 	rootRouter.Mount("/api", apiRouter)
@@ -39,6 +41,7 @@ func setMiddleware(router *chi.Mux) {
 	router.Use(middleware.Recoverer)
 	router.Use(middleware.Heartbeat("/ping"))
 	router.Use(middleware.Logger)
+	router.Use(middleware.CleanPath)
 
 	addCorsMiddleware(router)
 }

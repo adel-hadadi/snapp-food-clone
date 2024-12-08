@@ -1,22 +1,25 @@
 package app
 
 import (
-	"snapp-food/internal/delivery/http/handler"
 	"snapp-food/pkg/validate"
+
+	"github.com/jmoiron/sqlx"
 )
 
 type Application struct {
-	Handlers Handlers
+	Handlers     Handlers
+	Repositories Repositories
+	Services     Services
 }
 
-type Handlers struct {
-	Auth handler.AuthHandler
-}
+func New(db *sqlx.DB, validator validate.Validator) *Application {
+	app := new(Application)
 
-func New(validator validate.Validator) Application {
-	return Application{
-		Handlers: Handlers{
-			Auth: handler.NewAuthHandler(validator),
-		},
-	}
+	app.setupRepositories(db)
+
+	app.setupServices()
+
+	app.setupHandlers(validator)
+
+	return app
 }

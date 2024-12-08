@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"snapp-food/cmd/app"
+	"snapp-food/data/database"
 	"snapp-food/internal/delivery/http"
 	"snapp-food/pkg/validate"
 
@@ -19,7 +20,10 @@ func main() {
 
 	validator := validate.New()
 
-	app := app.New(validator)
+	db := database.New()
 
-	http.New(app.Handlers).Run(os.Getenv("PORT"))
+	app := app.New(db, validator)
+
+	http.New(app.Handlers, app.Services.Token).
+		Run(os.Getenv("PORT"))
 }
