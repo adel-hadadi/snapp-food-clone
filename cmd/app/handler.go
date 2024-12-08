@@ -15,6 +15,6 @@ func (a *Application) setupHandlers(v validate.Validator) {
 	a.Handlers = Handlers{
 		Auth:    handler.NewAuthHandler(v, a.Services.Auth),
 		OTP:     handler.NewOTPHandler(v, a.Services.OTPService),
-		Profile: handler.NewProfileHandler(),
+		Profile: handler.NewProfileHandler(a.Services.User),
 	}
 }

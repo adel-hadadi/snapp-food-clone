@@ -16,6 +16,7 @@ func (s HttpServer) setRoutes(router chi.Router) http.Handler {
 	router.Route("/profile", func(r chi.Router) {
 		r.Use(middleware.Authenticate(s.TokenSvc))
 		r.Get("/personal-info", s.Handlers.Profile.PersonalInfo)
+		r.Put("/personal-info", s.Handlers.Profile.Update)
 	})
 	return router
 }

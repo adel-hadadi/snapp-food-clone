@@ -5,12 +5,14 @@ import (
 	authservice "snapp-food/internal/service/auth"
 	otpservice "snapp-food/internal/service/otp"
 	tokenservice "snapp-food/internal/service/token"
+	userservice "snapp-food/internal/service/user"
 )
 
 type Services struct {
 	OTPService otpservice.Service
 	Token      tokenservice.Service
 	Auth       authservice.Service
+	User       userservice.Service
 }
 
 func (a *Application) setupServices() {
@@ -23,5 +25,6 @@ func (a *Application) setupServices() {
 		OTPService: otpSvc,
 		Token:      tokenSvc,
 		Auth:       authservice.New(otpSvc, a.Repositories.UserRepo, tokenSvc),
+		User:       userservice.New(a.Repositories.UserRepo),
 	}
 }

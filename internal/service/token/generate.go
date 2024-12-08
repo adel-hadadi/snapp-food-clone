@@ -23,9 +23,10 @@ func (s Service) Generate(ctx context.Context, user entity.User) (TokenRes, erro
 	t.AccessTokenExpireTime = time.Now().Add(AccessTokenExpireTime * time.Second).Unix()
 	t.RefreshTokenExpireTime = time.Now().Add(RefreshTokenExpireTime * time.Second).Unix()
 
+	// TODO: fix jwt claims
 	atc := jwt.MapClaims{
 		UserID:                   user.ID,
-		Name:                     user.Name,
+		Name:                     user.FirstName,
 		NationalID:               user.NationalID,
 		Phone:                    user.Phone,
 		Status:                   user.Status,

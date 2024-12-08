@@ -2,7 +2,8 @@
 -- +goose StatementBegin
 CREATE TABLE IF NOT EXISTS users (
     id SERIAL PRIMARY KEY NOT NULL,
-    name VARCHAR NULL,
+    first_name VARCHAR NULL,
+    last_name VARCHAR NULL,
     phone VARCHAR(11) NOT NULL UNIQUE,
     national_id VARCHAR(10) NULL UNIQUE,
     status SMALLINT DEFAULT 1,

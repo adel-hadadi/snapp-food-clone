@@ -12,10 +12,6 @@ type LoginRegisterReq struct {
 	Code  int
 }
 
-type Token struct {
-	AccessToken string
-}
-
 func (s Service) LoginRegister(ctx context.Context, req LoginRegisterReq) (tokenservice.TokenRes, error) {
 	err := s.otpSvc.Check(ctx, otpservice.OTPCheckReq{
 		Phone: req.Phone,

@@ -4,7 +4,8 @@ import "time"
 
 type User struct {
 	ID         int
-	Name       *string   `json:"name" db:"name"`
+	FirstName  *string   `json:"first_name" db:"first_name"`
+	LastName   *string   `json:"last_name" db:"last_name"`
 	Phone      string    `json:"phone" db:"phone"`
 	NationalID *string   `json:"national_id" db:"national_id"`
 	Status     int8      `json:"status" db:"status"`
