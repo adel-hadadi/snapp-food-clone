@@ -6,15 +6,17 @@ import (
 )
 
 type Handlers struct {
-	Auth    handler.AuthHandler
-	OTP     handler.OTPHandler
-	Profile handler.ProfileHandler
+	Auth      handler.AuthHandler
+	OTP       handler.OTPHandler
+	Profile   handler.ProfileHandler
+	StoreType handler.StoreTypeHandler
 }
 
 func (a *Application) setupHandlers(v validate.Validator) {
 	a.Handlers = Handlers{
-		Auth:    handler.NewAuthHandler(v, a.Services.Auth),
-		OTP:     handler.NewOTPHandler(v, a.Services.OTPService),
-		Profile: handler.NewProfileHandler(a.Services.User),
+		Auth:      handler.NewAuthHandler(v, a.Services.Auth),
+		OTP:       handler.NewOTPHandler(v, a.Services.OTPService),
+		Profile:   handler.NewProfileHandler(a.Services.User),
+		StoreType: handler.NewStoreTypeHandler(a.Services.StoreType),
 	}
 }

@@ -2,6 +2,7 @@ package http
 
 import (
 	"net/http"
+
 	"snapp-food/internal/delivery/http/middleware"
 
 	"github.com/go-chi/chi/v5"
@@ -18,5 +19,7 @@ func (s HttpServer) setRoutes(router chi.Router) http.Handler {
 		r.Get("/personal-info", s.Handlers.Profile.PersonalInfo)
 		r.Put("/personal-info", s.Handlers.Profile.Update)
 	})
+
+	router.Get("/store-types", s.Handlers.StoreType.Get)
 	return router
 }
