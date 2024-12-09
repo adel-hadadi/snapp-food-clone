@@ -7,15 +7,17 @@ import (
 )
 
 type Repositories struct {
-	OTPRepo       repository.OTPRepository
-	UserRepo      repository.UserRepository
-	StoreTypeRepo repository.StoreTypeRepository
+	OTPRepo         repository.OTPRepository
+	UserRepo        repository.UserRepository
+	StoreTypeRepo   repository.StoreTypeRepository
+	UserAddressRepo repository.UserAddressRepository
 }
 
 func (a *Application) setupRepositories(db *sqlx.DB) {
 	a.Repositories = Repositories{
-		OTPRepo:       repository.NewOTPRepository(db),
-		UserRepo:      repository.NewUserRepository(db),
-		StoreTypeRepo: repository.NewStoreTypeRepository(db),
+		OTPRepo:         repository.NewOTPRepository(db),
+		UserRepo:        repository.NewUserRepository(db),
+		StoreTypeRepo:   repository.NewStoreTypeRepository(db),
+		UserAddressRepo: repository.NewUserAddressRepository(db),
 	}
 }

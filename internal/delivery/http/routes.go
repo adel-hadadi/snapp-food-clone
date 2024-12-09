@@ -18,6 +18,9 @@ func (s HttpServer) setRoutes(router chi.Router) http.Handler {
 		r.Use(middleware.Authenticate(s.TokenSvc))
 		r.Get("/personal-info", s.Handlers.Profile.PersonalInfo)
 		r.Put("/personal-info", s.Handlers.Profile.Update)
+
+		r.Get("/addresses", s.Handlers.Profile.GetAddresses)
+		r.Post("/addresses", s.Handlers.Profile.CreateAddress)
 	})
 
 	router.Get("/store-types", s.Handlers.StoreType.Get)
