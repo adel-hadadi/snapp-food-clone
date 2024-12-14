@@ -4,6 +4,7 @@ import (
 	"snapp-food/internal/adapters"
 	authservice "snapp-food/internal/service/auth"
 	otpservice "snapp-food/internal/service/otp"
+	storeservice "snapp-food/internal/service/store"
 	storetypeservice "snapp-food/internal/service/storetype"
 	tokenservice "snapp-food/internal/service/token"
 	userservice "snapp-food/internal/service/user"
@@ -17,6 +18,7 @@ type Services struct {
 	User        userservice.Service
 	StoreType   storetypeservice.Service
 	UserAddress useraddressservice.Service
+	Store       storeservice.Service
 }
 
 func (a *Application) setupServices() {
@@ -32,5 +34,6 @@ func (a *Application) setupServices() {
 		User:        userservice.New(a.Repositories.UserRepo),
 		StoreType:   storetypeservice.New(a.Repositories.StoreTypeRepo),
 		UserAddress: useraddressservice.New(a.Repositories.UserAddressRepo),
+		Store:       storeservice.New(a.Repositories.StoreRepo),
 	}
 }

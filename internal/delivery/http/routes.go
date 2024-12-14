@@ -23,6 +23,12 @@ func (s HttpServer) setRoutes(router chi.Router) http.Handler {
 		r.Post("/addresses", s.Handlers.Profile.CreateAddress)
 	})
 
+	router.Route("/stores", func(r chi.Router) {
+		r.Post("/", s.Handlers.Store.Create)
+		r.Get("/{slug}", s.Handlers.Store.Find)
+		r.Get("/", s.Handlers.Store.List)
+	})
+
 	router.Get("/store-types", s.Handlers.StoreType.Get)
 	return router
 }

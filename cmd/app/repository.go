@@ -11,6 +11,7 @@ type Repositories struct {
 	UserRepo        repository.UserRepository
 	StoreTypeRepo   repository.StoreTypeRepository
 	UserAddressRepo repository.UserAddressRepository
+	StoreRepo       repository.StoreRepository
 }
 
 func (a *Application) setupRepositories(db *sqlx.DB) {
@@ -19,5 +20,6 @@ func (a *Application) setupRepositories(db *sqlx.DB) {
 		UserRepo:        repository.NewUserRepository(db),
 		StoreTypeRepo:   repository.NewStoreTypeRepository(db),
 		UserAddressRepo: repository.NewUserAddressRepository(db),
+		StoreRepo:       repository.NewStoreRepository(db),
 	}
 }
