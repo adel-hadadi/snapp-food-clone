@@ -27,6 +27,24 @@ func (s HttpServer) setRoutes(router chi.Router) http.Handler {
 		r.Post("/", s.Handlers.Store.Create)
 		r.Get("/{slug}", s.Handlers.Store.Find)
 		r.Get("/", s.Handlers.Store.List)
+
+		r.Post("/otp", s.Handlers.StoreManager.SendOTP)
+		r.Post("/login", s.Handlers.StoreManager.Login)
+
+		r.Route("/dashboard", func(r chi.Router) {
+			r.Use(middleware.DashboardAuthenticate(s.TokenSvc))
+
+			r.Get("/", s.Handlers.Store.Dashboard)
+
+			r.Route("/products", func(r chi.Router) {
+				r.Post("/", s.Handlers.Product.Create)
+				r.Get("/", s.Handlers.Product.List)
+			})
+
+			r.Route("/categories", func(r chi.Router) {
+				r.Post("/", s.Handlers.StoreCategory.Create)
+			})
+		})
 	})
 
 	router.Get("/store-types", s.Handlers.StoreType.Get)

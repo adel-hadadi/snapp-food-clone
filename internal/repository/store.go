@@ -2,7 +2,6 @@ package repository
 
 import (
 	"context"
-	"log"
 	"time"
 
 	"github.com/jmoiron/sqlx"
@@ -21,15 +20,16 @@ func (r StoreRepository) Find(ctx context.Context, id int) (entity.Store, error)
 	ctx, cancel := context.WithTimeout(ctx, 3*time.Second)
 	defer cancel()
 
-	query := `SELECT * FROM stores WHERE id=$1`
+	query := `SELECT 
+id, name, slug, logo, store_type_id, status, created_at,
+updated_at, manager_first_name, manager_last_name, phone, st_astext(location) 
+FROM stores WHERE id=$1`
 
 	var store entity.Store
 	err := r.db.QueryRowContext(ctx, query, id).Scan(
 		&store.ID,
 		&store.Name,
 		&store.Slug,
-		&store.Latitude,
-		&store.Longitude,
 		&store.Logo,
 		&store.StoreTypeID,
 		&store.Status,
@@ -38,6 +38,7 @@ func (r StoreRepository) Find(ctx context.Context, id int) (entity.Store, error)
 		&store.ManagerFirstName,
 		&store.ManagerLastName,
 		&store.Phone,
+		&store.Location,
 	)
 
 	return store, err
@@ -47,15 +48,16 @@ func (r StoreRepository) FindBySlug(ctx context.Context, slug string) (entity.St
 	ctx, cancel := context.WithTimeout(ctx, 3*time.Second)
 	defer cancel()
 
-	query := `SELECT * FROM stores WHERE slug=$1`
+	query := `SELECT 
+id, name, slug, logo, store_type_id, status, created_at,
+updated_at, manager_first_name, manager_last_name, phone, st_astext(location) 
+FROM stores WHERE slug=$1`
 
 	var store entity.Store
 	err := r.db.QueryRowContext(ctx, query, slug).Scan(
 		&store.ID,
 		&store.Name,
 		&store.Slug,
-		&store.Latitude,
-		&store.Longitude,
 		&store.Logo,
 		&store.StoreTypeID,
 		&store.Status,
@@ -64,6 +66,37 @@ func (r StoreRepository) FindBySlug(ctx context.Context, slug string) (entity.St
 		&store.ManagerFirstName,
 		&store.ManagerLastName,
 		&store.Phone,
+		&store.Location,
+	)
+
+	store.GenLatAndLong()
+
+	return store, err
+}
+
+func (r StoreRepository) FindByPhone(ctx context.Context, phone string) (entity.Store, error) {
+	ctx, cancel := context.WithTimeout(ctx, 3*time.Second)
+	defer cancel()
+
+	query := `SELECT 
+id, name, slug, logo, store_type_id, status, created_at,
+updated_at, manager_first_name, manager_last_name, phone, st_astext(location) 
+FROM stores WHERE phone=$1`
+
+	var store entity.Store
+	err := r.db.QueryRowContext(ctx, query, phone).Scan(
+		&store.ID,
+		&store.Name,
+		&store.Slug,
+		&store.Logo,
+		&store.StoreTypeID,
+		&store.Status,
+		&store.CreatedAt,
+		&store.UpdatedAt,
+		&store.ManagerFirstName,
+		&store.ManagerLastName,
+		&store.Phone,
+		&store.Location,
 	)
 
 	return store, err
@@ -73,7 +106,10 @@ func (r StoreRepository) Get(ctx context.Context) ([]entity.Store, error) {
 	ctx, cancel := context.WithTimeout(ctx, 3*time.Second)
 	defer cancel()
 
-	query := `SELECT * FROM stores`
+	query := `SELECT 
+id, name, slug, logo, store_type_id, status, created_at,
+updated_at, manager_first_name, manager_last_name, phone, st_astext(location) 
+FROM stores`
 
 	stores := make([]entity.Store, 0)
 
@@ -90,8 +126,6 @@ func (r StoreRepository) Get(ctx context.Context) ([]entity.Store, error) {
 			&store.ID,
 			&store.Name,
 			&store.Slug,
-			&store.Latitude,
-			&store.Longitude,
 			&store.Logo,
 			&store.StoreTypeID,
 			&store.Status,
@@ -100,6 +134,7 @@ func (r StoreRepository) Get(ctx context.Context) ([]entity.Store, error) {
 			&store.ManagerFirstName,
 			&store.ManagerLastName,
 			&store.Phone,
+			&store.Location,
 		)
 		if err != nil {
 			return nil, err
@@ -115,12 +150,10 @@ func (r StoreRepository) Create(ctx context.Context, store entity.Store) error {
 	ctx, cancel := context.WithTimeout(ctx, 3*time.Second)
 	defer cancel()
 
-	log.Println("store slug", store.Slug)
-
 	query := `INSERT INTO stores 
-		(name, slug, latitude, longitude, logo, manager_first_name, manager_last_name, phone, store_type_id) 
+		(name, slug, location, logo, manager_first_name, manager_last_name, phone, store_type_id) 
 		VALUES 
-		($1, $2, $3, $4, $5,$6, $7, $8, $9)`
+		($1, $2, st_makepoint($3, $4), $5, $6, $7, $8, $9)`
 
 	_, err := r.db.ExecContext(
 		ctx,
@@ -161,4 +194,16 @@ func (r StoreRepository) Update(ctx context.Context, id int, store entity.Store)
 	)
 
 	return err
+}
+
+func (r StoreRepository) ExistsByPhone(ctx context.Context, phone string) (bool, error) {
+	ctx, cancel := context.WithTimeout(ctx, 3*time.Second)
+	defer cancel()
+
+	query := `SELECT EXISTS (SELECT 1 FROM stores WHERE phone=$1)`
+
+	var exists bool
+	err := r.db.QueryRowContext(ctx, query, phone).Scan(&exists)
+
+	return exists, err
 }

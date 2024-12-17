@@ -3,18 +3,20 @@ package otpservice
 import (
 	"context"
 	"fmt"
+
 	"snapp-food/pkg/apperr"
 	"snapp-food/pkg/random"
 )
 
 type OTPSendReq struct {
-	Phone string
+	Phone  string
+	Prefix string
 }
 
 func (s Service) Send(ctx context.Context, req OTPSendReq) error {
 	const sendOTPCodeSysMSG = "otp service send otp code"
 
-	otpCode := random.RandNum(otpLength)
+	otpCode := random.Num(otpLength)
 
 	if err := s.sender.Send(
 		ctx,
@@ -25,7 +27,7 @@ func (s Service) Send(ctx context.Context, req OTPSendReq) error {
 	}
 
 	const saveOTPCodeSysMSG = "otp service save otp code"
-	if err := s.otpRepo.Create(ctx, req.Phone, otpCode); err != nil {
+	if err := s.otpRepo.Create(ctx, req.Phone, otpCode, req.Prefix); err != nil {
 		return apperr.New(apperr.Unexpected).WithErr(err).WithSysMsg(saveOTPCodeSysMSG)
 	}
 

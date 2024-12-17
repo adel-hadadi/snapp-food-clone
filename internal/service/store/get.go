@@ -2,25 +2,35 @@ package storeservice
 
 import (
 	"context"
+	"snapp-food/pkg/convert"
 	"time"
 
+	productserviec "snapp-food/internal/service/auth/product"
 	"snapp-food/pkg/apperr"
 )
 
 type StoreRes struct {
-	ID               int
-	Name             string
-	Slug             string
-	ManagerFirstName string
-	ManagerLastName  string
-	Phone            string
-	Address          string
-	Latitude         float64
-	Longitude        float64
-	Logo             string
-	StoreTypeID      int
-	CreatedAt        time.Time
-	UpdatedAt        time.Time
+	ID               int       `json:"id"`
+	Name             string    `json:"name"`
+	Slug             string    `json:"slug"`
+	ManagerFirstName string    `json:"manager_first_name"`
+	ManagerLastName  string    `json:"manager_last_name"`
+	Phone            string    `json:"phone"`
+	Address          string    `json:"address"`
+	Latitude         float64   `json:"latitude"`
+	Longitude        float64   `json:"longitude"`
+	Logo             string    `json:"logo"`
+	StoreTypeID      int       `json:"store_type_id"`
+	CreatedAt        time.Time `json:"created_at"`
+	UpdatedAt        time.Time `json:"updated_at"`
+
+	Categories []CategoryRes `json:"categories"`
+}
+
+type CategoryRes struct {
+	ID       int                         `json:"id"`
+	Name     string                      `json:"name"`
+	Products []productserviec.ProductRes `json:"products"`
 }
 
 func (s Service) Find(ctx context.Context, slug string) (StoreRes, error) {
@@ -35,7 +45,7 @@ func (s Service) Find(ctx context.Context, slug string) (StoreRes, error) {
 		return StoreRes{}, apperr.New(apperr.Unexpected).WithErr(err).WithSysMsg(findStoreBySlugSysMsg)
 	}
 
-	return StoreRes{
+	storeRes := StoreRes{
 		ID:               store.ID,
 		Name:             store.Name,
 		Slug:             store.Slug,
@@ -49,7 +59,25 @@ func (s Service) Find(ctx context.Context, slug string) (StoreRes, error) {
 		StoreTypeID:      store.StoreTypeID,
 		CreatedAt:        store.CreatedAt,
 		UpdatedAt:        store.UpdatedAt,
-	}, nil
+	}
+
+	const getStoreCategoriesSysMSG = "store service get store's categories"
+
+	storeCategories, err := s.storeCategoryRepo.GetByStoreID(ctx, store.ID)
+	if err != nil {
+		return StoreRes{}, apperr.New(apperr.Unexpected).WithErr(err).WithSysMsg(getStoreCategoriesSysMSG)
+	}
+
+	categories := make([]CategoryRes, 0, len(storeCategories))
+	for _, category := range storeCategories {
+		c, _ := convert.ToStruct[CategoryRes](category)
+
+		categories = append(categories, c)
+	}
+
+	storeRes.Categories = categories
+
+	return storeRes, nil
 }
 
 func (s Service) List(ctx context.Context) ([]StoreRes, error) {

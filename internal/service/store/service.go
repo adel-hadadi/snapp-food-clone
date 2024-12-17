@@ -7,7 +7,8 @@ import (
 )
 
 type Service struct {
-	repo storeRepository
+	repo              storeRepository
+	storeCategoryRepo storeCategoryRepository
 }
 
 type storeRepository interface {
@@ -15,8 +16,16 @@ type storeRepository interface {
 	FindBySlug(ctx context.Context, slug string) (entity.Store, error)
 	Create(ctx context.Context, store entity.Store) error
 	Get(ctx context.Context) ([]entity.Store, error)
+	ExistsByPhone(ctx context.Context, phone string) (bool, error)
 }
 
-func New(repo storeRepository) Service {
-	return Service{repo: repo}
+type storeCategoryRepository interface {
+	GetByStoreID(ctx context.Context, storeID int) ([]entity.StoreCategory, error)
+}
+
+func New(repo storeRepository, storeCategoryRepo storeCategoryRepository) Service {
+	return Service{
+		repo:              repo,
+		storeCategoryRepo: storeCategoryRepo,
+	}
 }

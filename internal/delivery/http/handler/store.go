@@ -2,6 +2,7 @@ package handler
 
 import (
 	"context"
+	"log"
 	"net/http"
 	"time"
 
@@ -19,6 +20,7 @@ type storeService interface {
 	Create(ctx context.Context, req storeservice.CreateReq) error
 	Find(ctx context.Context, slug string) (storeservice.StoreRes, error)
 	List(ctx context.Context) ([]storeservice.StoreRes, error)
+	ExistsByPhone(ctx context.Context, phone string) (bool, error)
 }
 
 func NewStoreHandler(storeSvc storeService) StoreHandler {
@@ -89,7 +91,7 @@ func (h StoreHandler) Find(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	httpres.Success(w, h.DTOToRes(store), http.StatusOK)
+	httpres.Success(w, store, http.StatusOK)
 }
 
 func (h StoreHandler) List(w http.ResponseWriter, r *http.Request) {
@@ -106,6 +108,12 @@ func (h StoreHandler) List(w http.ResponseWriter, r *http.Request) {
 	}
 
 	httpres.Success(w, res, http.StatusOK)
+}
+
+func (h StoreHandler) Dashboard(w http.ResponseWriter, r *http.Request) {
+	log.Println("dashboard")
+
+	w.Write([]byte("hello store manager"))
 }
 
 func (h StoreHandler) DTOToRes(store storeservice.StoreRes) StoreRes {

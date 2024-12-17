@@ -2,6 +2,7 @@ package otpservice
 
 import (
 	"context"
+
 	"snapp-food/internal/entity"
 )
 
@@ -27,8 +28,8 @@ type (
 	}
 
 	OTPRepository interface {
-		Create(ctx context.Context, phone string, code int) error
-		Check(ctx context.Context, phone string, code int) (entity.OTP, error)
+		Create(ctx context.Context, phone string, code int, prefix string) error
+		Check(ctx context.Context, phone string, code int, prefix string) (entity.OTP, error)
 		Used(ctx context.Context, id int) error
 	}
 )

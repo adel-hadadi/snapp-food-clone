@@ -2,6 +2,7 @@ package authservice
 
 import (
 	"context"
+
 	otpservice "snapp-food/internal/service/otp"
 	tokenservice "snapp-food/internal/service/token"
 	"snapp-food/pkg/apperr"
@@ -14,8 +15,9 @@ type LoginRegisterReq struct {
 
 func (s Service) LoginRegister(ctx context.Context, req LoginRegisterReq) (tokenservice.TokenRes, error) {
 	err := s.otpSvc.Check(ctx, otpservice.OTPCheckReq{
-		Phone: req.Phone,
-		Code:  req.Code,
+		Phone:  req.Phone,
+		Code:   req.Code,
+		Prefix: "user",
 	})
 	if err != nil {
 		return tokenservice.TokenRes{}, err
@@ -39,7 +41,11 @@ func (s Service) LoginRegister(ctx context.Context, req LoginRegisterReq) (token
 		}
 	}
 
-	token, err := s.tokenSvc.Generate(ctx, user)
+	token, err := s.tokenSvc.Generate(ctx, tokenservice.GenerateTokenReq{
+		Name:   *user.FirstName,
+		Phone:  user.Phone,
+		UserID: user.ID,
+	})
 	if err != nil {
 		return tokenservice.TokenRes{}, err
 	}

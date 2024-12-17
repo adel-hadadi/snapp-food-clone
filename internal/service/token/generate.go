@@ -3,9 +3,9 @@ package tokenservice
 import (
 	"context"
 	"os"
-	"snapp-food/internal/entity"
-	"snapp-food/pkg/apperr"
 	"time"
+
+	"snapp-food/pkg/apperr"
 
 	"github.com/golang-jwt/jwt/v5"
 )
@@ -17,7 +17,13 @@ type TokenRes struct {
 	RefreshTokenExpireTime int64
 }
 
-func (s Service) Generate(ctx context.Context, user entity.User) (TokenRes, error) {
+type GenerateTokenReq struct {
+	Name   string
+	Phone  string
+	UserID int
+}
+
+func (s Service) Generate(ctx context.Context, user GenerateTokenReq) (TokenRes, error) {
 	var t TokenRes
 
 	t.AccessTokenExpireTime = time.Now().Add(AccessTokenExpireTime * time.Second).Unix()
@@ -25,11 +31,9 @@ func (s Service) Generate(ctx context.Context, user entity.User) (TokenRes, erro
 
 	// TODO: fix jwt claims
 	atc := jwt.MapClaims{
-		UserID:                   user.ID,
-		Name:                     user.FirstName,
-		NationalID:               user.NationalID,
+		UserID:                   user.UserID,
+		Name:                     user.Name,
 		Phone:                    user.Phone,
-		Status:                   user.Status,
 		"accessTokenExpireTime":  t.AccessTokenExpireTime,
 		"refreshTokenExpireTime": t.RefreshTokenExpireTime,
 	}
@@ -45,7 +49,7 @@ func (s Service) Generate(ctx context.Context, user entity.User) (TokenRes, erro
 	}
 
 	rtc := jwt.MapClaims{
-		UserID:                   user.ID,
+		UserID:                   user.UserID,
 		"refreshTokenExpireTime": t.RefreshTokenExpireTime,
 	}
 

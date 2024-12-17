@@ -3,8 +3,9 @@ package repository
 import (
 	"context"
 	"log"
-	"snapp-food/internal/entity"
 	"time"
+
+	"snapp-food/internal/entity"
 
 	"github.com/jmoiron/sqlx"
 )
@@ -17,18 +18,18 @@ func NewOTPRepository(db *sqlx.DB) OTPRepository {
 	return OTPRepository{db: db}
 }
 
-func (r OTPRepository) Create(ctx context.Context, phone string, code int) error {
+func (r OTPRepository) Create(ctx context.Context, phone string, code int, prefix string) error {
 	ctx, cancel := context.WithTimeout(ctx, 3*time.Second)
 	defer cancel()
 
-	query := `INSERT INTO otps (phone, code) VALUES ($1, $2)`
+	query := `INSERT INTO otps (phone, code, prefix) VALUES ($1, $2, $3)`
 
-	_, err := r.db.ExecContext(ctx, query, phone, code)
+	_, err := r.db.ExecContext(ctx, query, phone, code, prefix)
 
 	return err
 }
 
-func (r OTPRepository) Check(ctx context.Context, phone string, code int) (entity.OTP, error) {
+func (r OTPRepository) Check(ctx context.Context, phone string, code int, prefix string) (entity.OTP, error) {
 	ctx, cancel := context.WithTimeout(ctx, 3*time.Second)
 	defer cancel()
 
@@ -37,6 +38,7 @@ func (r OTPRepository) Check(ctx context.Context, phone string, code int) (entit
         WHERE phone=$1
         AND code=$2
         AND status=$3
+          AND prefix=$4
         AND created_at >= NOW() - INTERVAL '2 minutes'`
 
 	log.Println("check status", entity.StatusUnUsed)
@@ -46,6 +48,7 @@ func (r OTPRepository) Check(ctx context.Context, phone string, code int) (entit
 		phone,
 		code,
 		entity.StatusUnUsed,
+		prefix,
 	).StructScan(&otp)
 
 	return otp, err

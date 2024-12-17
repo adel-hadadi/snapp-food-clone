@@ -3,6 +3,7 @@ package handler
 import (
 	"context"
 	"net/http"
+
 	otpservice "snapp-food/internal/service/otp"
 	"snapp-food/pkg/httpres"
 	"snapp-food/pkg/server/httpreq"
@@ -29,6 +30,8 @@ type OTPSendReq struct {
 	Phone string `json:"phone" validate:"required"`
 }
 
+const userOTPPrefix = "user"
+
 func (h OTPHandler) Send(w http.ResponseWriter, r *http.Request) {
 	req, err := httpreq.Bind[OTPSendReq](r)
 	if err != nil {
@@ -41,7 +44,7 @@ func (h OTPHandler) Send(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = h.otpSvc.Send(r.Context(), otpservice.OTPSendReq{Phone: req.Phone})
+	err = h.otpSvc.Send(r.Context(), otpservice.OTPSendReq{Phone: req.Phone, Prefix: userOTPPrefix})
 	if err != nil {
 		httpres.WithErr(w, err)
 		return

@@ -4,7 +4,7 @@ import (
 	"math/rand"
 )
 
-func RandNum(length int) int {
+func Num(length int) int {
 	lowerBound := int64(1)
 	for i := 1; i < length; i++ {
 		lowerBound *= 10

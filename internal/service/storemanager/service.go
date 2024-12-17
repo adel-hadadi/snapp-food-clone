@@ -1,4 +1,4 @@
-package authservice
+package storemanagerservice
 
 import (
 	"context"
@@ -10,27 +10,26 @@ import (
 
 type Service struct {
 	otpSvc   otpService
-	userRepo userRepository
 	tokenSvc tokenService
+	repo     storeRepository
 }
 
 type otpService interface {
 	Check(ctx context.Context, req otpservice.OTPCheckReq) error
 }
 
-type userRepository interface {
-	GetByPhone(ctx context.Context, phone string) (entity.User, error)
-	Create(ctx context.Context, phone string) (entity.User, error)
-}
-
 type tokenService interface {
 	Generate(ctx context.Context, user tokenservice.GenerateTokenReq) (tokenservice.TokenRes, error)
 }
 
-func New(otpSvc otpService, userRepo userRepository, tokenSvc tokenService) Service {
+type storeRepository interface {
+	FindByPhone(ctx context.Context, phone string) (entity.Store, error)
+}
+
+func New(otpSvc otpService, tokenSvc tokenService, repo storeRepository) Service {
 	return Service{
 		otpSvc:   otpSvc,
-		userRepo: userRepo,
 		tokenSvc: tokenSvc,
+		repo:     repo,
 	}
 }

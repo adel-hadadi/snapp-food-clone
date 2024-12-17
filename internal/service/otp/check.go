@@ -2,12 +2,14 @@ package otpservice
 
 import (
 	"context"
+
 	"snapp-food/pkg/apperr"
 )
 
 type OTPCheckReq struct {
-	Phone string
-	Code  int
+	Phone  string
+	Prefix string
+	Code   int
 }
 
 const OTPIsInvalid = "کد وارد شده اشتباه می‌باشد"
@@ -15,7 +17,7 @@ const OTPIsInvalid = "کد وارد شده اشتباه می‌باشد"
 func (s Service) Check(ctx context.Context, req OTPCheckReq) error {
 	const checkOTPSysMsg = "otp service check otp code"
 
-	otp, err := s.otpRepo.Check(ctx, req.Phone, req.Code)
+	otp, err := s.otpRepo.Check(ctx, req.Phone, req.Code, req.Prefix)
 	if err != nil {
 		if apperr.IsSQLNoRows(err) {
 			return apperr.New(apperr.Invalid).WithMsg(OTPIsInvalid)
