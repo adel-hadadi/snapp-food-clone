@@ -11,4 +11,6 @@ type User struct {
 	Status     int8      `json:"status" db:"status"`
 	CreatedAt  time.Time `json:"created_at" db:"created_at"`
 	UpdatedAt  time.Time `json:"updated_at" db:"updated_at"`
+
+	DefaultAddressID *int `json:"default_address_id" db:"default_address_id"`
 }

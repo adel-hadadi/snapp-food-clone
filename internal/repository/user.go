@@ -73,15 +73,15 @@ func (r UserRepository) Get(ctx context.Context, userID int) (entity.User, error
 	return user, err
 }
 
-func (r UserRepository) Update(ctx context.Context, userID int, firstName, lastName, nationalID string) error {
+func (r UserRepository) Update(ctx context.Context, userID int, firstName, lastName, nationalID string, defaultAddress int) error {
 	ctx, cancel := context.WithTimeout(ctx, 3*time.Second)
 	defer cancel()
 
 	query := `UPDATE users
-    SET first_name=$1, last_name=$2, national_id=$3
-    WHERE id = $4`
+    SET first_name=$1, last_name=$2, national_id=$3, default_address_id=$4
+    WHERE id = $5`
 
-	_, err := r.db.ExecContext(ctx, query, firstName, lastName, nationalID, userID)
+	_, err := r.db.ExecContext(ctx, query, firstName, lastName, nationalID, defaultAddress, userID)
 
 	return err
 }

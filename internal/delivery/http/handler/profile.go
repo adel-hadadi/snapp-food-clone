@@ -61,9 +61,10 @@ func (h ProfileHandler) PersonalInfo(w http.ResponseWriter, r *http.Request) {
 }
 
 type UpdateProfileReq struct {
-	FirstName  string `json:"first_name"`
-	LastName   string `json:"last_name"`
-	NationalID string `json:"national_id"`
+	FirstName        string `json:"first_name"`
+	LastName         string `json:"last_name"`
+	NationalID       string `json:"national_id"`
+	DefaultAddressID int    `json:"default_address_id"`
 }
 
 func (h ProfileHandler) Update(w http.ResponseWriter, r *http.Request) {
@@ -76,9 +77,10 @@ func (h ProfileHandler) Update(w http.ResponseWriter, r *http.Request) {
 	userID := httpreq.AuthID(r)
 
 	if err := h.userSvc.Update(r.Context(), userID, userservice.UpdateUserReq{
-		FirstName:  req.FirstName,
-		LastName:   req.LastName,
-		NationalID: req.NationalID,
+		FirstName:        req.FirstName,
+		LastName:         req.LastName,
+		NationalID:       req.NationalID,
+		DefaultAddressID: req.DefaultAddressID,
 	}); err != nil {
 		httpres.WithErr(w, err)
 		return

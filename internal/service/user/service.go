@@ -6,16 +6,22 @@ import (
 )
 
 type Service struct {
-	userRepo userRepository
+	userRepo        userRepository
+	userAddressRepo userAddressRepository
 }
 
 type userRepository interface {
 	Get(ctx context.Context, userID int) (entity.User, error)
-	Update(ctx context.Context, userID int, firstName, lastName, nationalID string) error
+	Update(ctx context.Context, userID int, firstName, lastName, nationalID string, defaultAddress int) error
 }
 
-func New(userRepo userRepository) Service {
+type userAddressRepository interface {
+	BelongsToUser(ctx context.Context, addressID, userID int) (bool, error)
+}
+
+func New(userRepo userRepository, userAddressRepo userAddressRepository) Service {
 	return Service{
-		userRepo: userRepo,
+		userRepo:        userRepo,
+		userAddressRepo: userAddressRepo,
 	}
 }

@@ -97,3 +97,16 @@ func (r UserAddressRepository) Create(ctx context.Context, userID int, address e
 
 	return err
 }
+
+func (r UserAddressRepository) BelongsToUser(ctx context.Context, addressID, userID int) (bool, error) {
+	ctx, cancel := context.WithTimeout(ctx, 3*time.Second)
+	defer cancel()
+
+	query := `SELECT EXISTS(SELECT 1 FROM user_addresses WHERE user_id=$1 AND id=$2)`
+
+	var exists bool
+
+	err := r.db.QueryRowContext(ctx, query, userID, addressID).Scan(&exists)
+
+	return exists, err
+}

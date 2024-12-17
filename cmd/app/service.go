@@ -37,7 +37,7 @@ func (a *Application) setupServices() {
 		OTPService:    otpSvc,
 		Token:         tokenSvc,
 		Auth:          authservice.New(otpSvc, a.Repositories.UserRepo, tokenSvc),
-		User:          userservice.New(a.Repositories.UserRepo),
+		User:          userservice.New(a.Repositories.UserRepo, a.Repositories.UserAddressRepo),
 		StoreType:     storetypeservice.New(a.Repositories.StoreTypeRepo),
 		UserAddress:   useraddressservice.New(a.Repositories.UserAddressRepo),
 		Store:         storeservice.New(a.Repositories.StoreRepo, a.Repositories.StoreCategoryRepo),
