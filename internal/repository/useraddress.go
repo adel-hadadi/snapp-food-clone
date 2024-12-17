@@ -21,7 +21,18 @@ func (r UserAddressRepository) GetByUserID(ctx context.Context, userID int) ([]e
 	ctx, cancel := context.WithTimeout(ctx, 3*time.Second)
 	defer cancel()
 
-	query := `SELECT user_addresses.*, c.id, c.name, p.id, p.name FROM user_addresses 
+	query := `
+	SELECT 
+		user_addresses.id,
+		user_addresses.name,
+		user_addresses.user_id,
+		user_addresses.city_id,
+		user_addresses.province_id,
+		user_addresses.address,
+		user_addresses.detail,
+		st_astext(user_addresses.location),
+		c.id, c.name, p.id, p.name 
+	FROM user_addresses 
 	LEFT JOIN cities c on c.id = user_addresses.city_id 
 	LEFT OUTER JOIN provinces p on p.id = user_addresses.province_id 
 	WHERE user_id = $1`
@@ -39,13 +50,12 @@ func (r UserAddressRepository) GetByUserID(ctx context.Context, userID int) ([]e
 		if err := rows.Scan(
 			&address.ID,
 			&address.Name,
-			&address.Latitude,
-			&address.Longitude,
 			&address.UserID,
 			&address.CityID,
 			&address.ProvinceID,
 			&address.Address,
 			&address.Detail,
+			&address.Location,
 			&address.City.ID,
 			&address.City.Name,
 			&address.Province.ID,
@@ -53,6 +63,8 @@ func (r UserAddressRepository) GetByUserID(ctx context.Context, userID int) ([]e
 		); err != nil {
 			return nil, err
 		}
+
+		address.GenLatAndLong()
 
 		addresses = append(addresses, address)
 	}
@@ -65,8 +77,8 @@ func (r UserAddressRepository) Create(ctx context.Context, userID int, address e
 	defer cancel()
 
 	query := `INSERT INTO user_addresses 
-		(name, latitude, longitude, user_id, city_id, province_id, address, detail) 
-		VALUES ($1,  $2, $3, $4, $5, $6, $7, $8)`
+		(name, location, user_id, city_id, province_id, address, detail) 
+		VALUES ($1, st_makepoint($2, $3), $4, $5, $6, $7, $8)`
 
 	log.Printf("user address %+v", address)
 
