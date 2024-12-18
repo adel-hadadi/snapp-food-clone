@@ -109,3 +109,26 @@ func (s Service) List(ctx context.Context) ([]StoreRes, error) {
 
 	return res, nil
 }
+
+func (s Service) Nearest(ctx context.Context, userID int) ([]StoreRes, error) {
+	const findNearestStores = "store service nearest method"
+
+	stores, err := s.repo.Nearest(ctx, userID)
+	if err != nil {
+		return nil, apperr.New(apperr.Unexpected).WithErr(err).WithSysMsg(findNearestStores)
+	}
+
+	storeRes := make([]StoreRes, 0, len(stores))
+
+	for _, store := range stores {
+		storeRes = append(storeRes, StoreRes{
+			ID:      store.ID,
+			Name:    store.Name,
+			Slug:    store.Slug,
+			Address: store.Address,
+			Logo:    store.Logo,
+		})
+	}
+
+	return storeRes, nil
+}

@@ -151,9 +151,9 @@ func (r StoreRepository) Create(ctx context.Context, store entity.Store) error {
 	defer cancel()
 
 	query := `INSERT INTO stores 
-		(name, slug, location, logo, manager_first_name, manager_last_name, phone, store_type_id) 
+		(name, slug, location, logo, manager_first_name, manager_last_name, phone, store_type_id, city_id) 
 		VALUES 
-		($1, $2, st_makepoint($3, $4), $5, $6, $7, $8, $9)`
+		($1, $2, st_makepoint($3, $4), $5, $6, $7, $8, $9, $10)`
 
 	_, err := r.db.ExecContext(
 		ctx,
@@ -167,6 +167,7 @@ func (r StoreRepository) Create(ctx context.Context, store entity.Store) error {
 		store.ManagerLastName,
 		store.Phone,
 		store.StoreTypeID,
+		store.CityID,
 	)
 
 	return err
@@ -206,4 +207,41 @@ func (r StoreRepository) ExistsByPhone(ctx context.Context, phone string) (bool,
 	err := r.db.QueryRowContext(ctx, query, phone).Scan(&exists)
 
 	return exists, err
+}
+
+func (r StoreRepository) Nearest(ctx context.Context, userID int) ([]entity.Store, error) {
+	ctx, cancel := context.WithTimeout(ctx, 3*time.Second)
+	defer cancel()
+
+	query := `
+	SELECT stores.id, stores.name, stores.slug, stores.logo FROM stores
+	RIGHT JOIN user_addresses ON user_addresses.id = (select default_address_id from users where users.id=$1)
+	WHERE stores.city_id = user_addresses.city_id
+	ORDER BY stores.location <-> user_addresses.location
+	`
+
+	rows, err := r.db.QueryContext(ctx, query, userID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	stores := make([]entity.Store, 0)
+
+	for rows.Next() {
+		var store entity.Store
+
+		if err := rows.Scan(
+			&store.ID,
+			&store.Name,
+			&store.Slug,
+			&store.Logo,
+		); err != nil {
+			return nil, err
+		}
+
+		stores = append(stores, store)
+	}
+
+	return stores, nil
 }

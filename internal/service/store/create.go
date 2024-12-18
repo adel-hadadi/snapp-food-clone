@@ -18,6 +18,7 @@ type CreateReq struct {
 	Latitude         float64
 	Longitude        float64
 	Logo             string // TODO: change logo to file
+	CityID           int
 }
 
 func (s Service) Create(ctx context.Context, req CreateReq) error {
@@ -33,6 +34,7 @@ func (s Service) Create(ctx context.Context, req CreateReq) error {
 		Longitude:        req.Longitude,
 		Logo:             req.Logo,
 		StoreTypeID:      req.StoreTypeID,
+		CityID:           &req.CityID,
 	})
 	if err != nil {
 		return apperr.New(apperr.Unexpected).WithErr(err).WithSysMsg(createStoreSysMsg)

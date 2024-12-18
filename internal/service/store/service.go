@@ -17,6 +17,7 @@ type storeRepository interface {
 	Create(ctx context.Context, store entity.Store) error
 	Get(ctx context.Context) ([]entity.Store, error)
 	ExistsByPhone(ctx context.Context, phone string) (bool, error)
+	Nearest(ctx context.Context, userID int) ([]entity.Store, error)
 }
 
 type storeCategoryRepository interface {

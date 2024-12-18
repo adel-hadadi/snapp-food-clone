@@ -21,6 +21,7 @@ type storeService interface {
 	Find(ctx context.Context, slug string) (storeservice.StoreRes, error)
 	List(ctx context.Context) ([]storeservice.StoreRes, error)
 	ExistsByPhone(ctx context.Context, phone string) (bool, error)
+	Nearest(ctx context.Context, userID int) ([]storeservice.StoreRes, error)
 }
 
 func NewStoreHandler(storeSvc storeService) StoreHandler {
@@ -37,6 +38,7 @@ type CreateStoreReq struct {
 	Phone            string  `json:"phone"`
 	ManagerFirstName string  `json:"manager_first_name"`
 	ManagerLastName  string  `json:"manager_last_name"`
+	CityID           int     `json:"city_id"`
 }
 
 func (h StoreHandler) Create(w http.ResponseWriter, r *http.Request) {
@@ -58,6 +60,7 @@ func (h StoreHandler) Create(w http.ResponseWriter, r *http.Request) {
 		Latitude:         req.Latitude,
 		Longitude:        req.Longitude,
 		Logo:             req.Logo,
+		CityID:           req.CityID,
 	}); err != nil {
 		httpres.WithErr(w, err)
 		return
@@ -105,6 +108,23 @@ func (h StoreHandler) List(w http.ResponseWriter, r *http.Request) {
 
 	for _, store := range stores {
 		res = append(res, h.DTOToRes(store))
+	}
+
+	httpres.Success(w, res, http.StatusOK)
+}
+
+func (h StoreHandler) ListNearest(w http.ResponseWriter, r *http.Request) {
+	userID := httpreq.AuthID(r)
+
+	stores, err := h.storeSvc.Nearest(r.Context(), userID)
+	if err != nil {
+		httpres.WithErr(w, err)
+		return
+	}
+
+	res := make([]StoreRes, 0, len(stores))
+	for s := range stores {
+		res = append(res, h.DTOToRes(stores[s]))
 	}
 
 	httpres.Success(w, res, http.StatusOK)

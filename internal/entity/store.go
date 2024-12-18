@@ -17,6 +17,7 @@ type Store struct {
 	Latitude         float64   `json:"latitude" db:"latitude"`
 	Longitude        float64   `json:"longitude" db:"longitude"`
 	Location         string    `json:"location" db:"location"`
+	CityID           *int      `json:"city_id" db:"city_id"`
 	Address          string    `json:"address" db:"address"`
 	Logo             string    `json:"logo" db:"logo"`
 	StoreTypeID      int       `json:"store_type_id" db:"store_type_id"`
