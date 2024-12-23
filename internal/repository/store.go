@@ -4,8 +4,9 @@ import (
 	"context"
 	"time"
 
-	"github.com/jmoiron/sqlx"
 	"snapp-food/internal/entity"
+
+	"github.com/jmoiron/sqlx"
 )
 
 type StoreRepository struct {
@@ -50,8 +51,9 @@ func (r StoreRepository) FindBySlug(ctx context.Context, slug string) (entity.St
 
 	query := `SELECT 
 id, name, slug, logo, store_type_id, status, created_at,
-updated_at, manager_first_name, manager_last_name, phone, st_astext(location) 
-FROM stores WHERE slug=$1`
+updated_at, manager_first_name, manager_last_name, phone, st_astext(location),
+    store_types.id, store_types.name, store_types.image, store_types.url
+FROM stores LEFT JOIN store_types ON store_types.id = store.store_type_id WHERE slug=$1`
 
 	var store entity.Store
 	err := r.db.QueryRowContext(ctx, query, slug).Scan(
@@ -67,6 +69,10 @@ FROM stores WHERE slug=$1`
 		&store.ManagerLastName,
 		&store.Phone,
 		&store.Location,
+		&store.StoreType.ID,
+		&store.StoreType.Name,
+		&store.StoreType.Image,
+		&store.StoreType.URL,
 	)
 
 	store.GenLatAndLong()
@@ -107,9 +113,10 @@ func (r StoreRepository) Get(ctx context.Context) ([]entity.Store, error) {
 	defer cancel()
 
 	query := `SELECT 
-id, name, slug, logo, store_type_id, status, created_at,
-updated_at, manager_first_name, manager_last_name, phone, st_astext(location) 
-FROM stores`
+stores.id, stores.name, stores.slug, stores.logo, stores.store_type_id, stores.status, stores.created_at,
+stores.updated_at, stores.manager_first_name, stores.manager_last_name, stores.phone, st_astext(stores.location),
+    store_types.id, store_types.name, store_types.url, store_types.image
+FROM stores LEFT JOIN store_types ON store_types.id = stores.store_type_id`
 
 	stores := make([]entity.Store, 0)
 
@@ -135,6 +142,11 @@ FROM stores`
 			&store.ManagerLastName,
 			&store.Phone,
 			&store.Location,
+
+			&store.StoreType.ID,
+			&store.StoreType.Name,
+			&store.StoreType.URL,
+			&store.StoreType.Image,
 		)
 		if err != nil {
 			return nil, err

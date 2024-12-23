@@ -24,6 +24,8 @@ type Store struct {
 	Status           int       `json:"status" db:"status"`
 	CreatedAt        time.Time `json:"created_at" db:"created_at"`
 	UpdatedAt        time.Time `json:"updated_at" db:"updated_at"`
+
+	StoreType StoreType `json:"store_type"`
 }
 
 func (s *Store) GenLatAndLong() {

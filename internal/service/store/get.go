@@ -6,6 +6,7 @@ import (
 	"time"
 
 	productserviec "snapp-food/internal/service/auth/product"
+	storetypeservice "snapp-food/internal/service/storetype"
 	"snapp-food/pkg/apperr"
 )
 
@@ -25,6 +26,7 @@ type StoreRes struct {
 	UpdatedAt        time.Time `json:"updated_at"`
 
 	Categories []CategoryRes `json:"categories"`
+	StoreType  storetypeservice.StoreType
 }
 
 type CategoryRes struct {
@@ -59,6 +61,13 @@ func (s Service) Find(ctx context.Context, slug string) (StoreRes, error) {
 		StoreTypeID:      store.StoreTypeID,
 		CreatedAt:        store.CreatedAt,
 		UpdatedAt:        store.UpdatedAt,
+
+		StoreType: storetypeservice.StoreType{
+			ID:    store.StoreType.ID,
+			Name:  store.StoreType.Name,
+			Image: store.StoreType.Image,
+			URL:   store.StoreType.URL,
+		},
 	}
 
 	const getStoreCategoriesSysMSG = "store service get store's categories"
@@ -104,6 +113,13 @@ func (s Service) List(ctx context.Context) ([]StoreRes, error) {
 			StoreTypeID:      stores[i].StoreTypeID,
 			CreatedAt:        stores[i].CreatedAt,
 			UpdatedAt:        stores[i].UpdatedAt,
+
+			StoreType: storetypeservice.StoreType{
+				ID:    stores[i].StoreType.ID,
+				Name:  stores[i].StoreType.Name,
+				Image: stores[i].StoreType.Image,
+				URL:   stores[i].StoreType.URL,
+			},
 		})
 	}
 

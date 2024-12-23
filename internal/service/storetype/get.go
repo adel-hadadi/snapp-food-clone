@@ -7,10 +7,10 @@ import (
 )
 
 type StoreType struct {
-	ID    int
-	Name  string
-	Image string
-	URL   string
+	ID    int    `json:"id"`
+	Name  string `json:"name"`
+	Image string `json:"image"`
+	URL   string `json:"url"`
 }
 
 func (s Service) Get(ctx context.Context) ([]StoreType, error) {

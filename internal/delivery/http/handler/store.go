@@ -6,10 +6,11 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/go-chi/chi/v5"
 	storeservice "snapp-food/internal/service/store"
 	"snapp-food/pkg/httpres"
 	"snapp-food/pkg/server/httpreq"
+
+	"github.com/go-chi/chi/v5"
 )
 
 type StoreHandler struct {
@@ -83,6 +84,8 @@ type StoreRes struct {
 	StoreTypeID      int       `json:"store_type_id"`
 	CreatedAt        time.Time `json:"created_at"`
 	UpdatedAt        time.Time `json:"updated_at"`
+
+	StoreType StoreTypeRes `json:"store_type"`
 }
 
 func (h StoreHandler) Find(w http.ResponseWriter, r *http.Request) {
@@ -151,5 +154,12 @@ func (h StoreHandler) DTOToRes(store storeservice.StoreRes) StoreRes {
 		StoreTypeID:      store.StoreTypeID,
 		CreatedAt:        store.CreatedAt,
 		UpdatedAt:        store.UpdatedAt,
+
+		StoreType: StoreTypeRes{
+			ID:    store.StoreType.ID,
+			Name:  store.StoreType.Name,
+			Image: store.StoreType.Image,
+			URL:   store.StoreType.URL,
+		},
 	}
 }
