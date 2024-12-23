@@ -53,5 +53,6 @@ func (s HttpServer) setRoutes(router chi.Router) http.Handler {
 	})
 
 	router.Get("/store-types", s.Handlers.StoreType.Get)
+	router.Get("/product-categories", s.Handlers.ProductCategory.List)
 	return router
 }
