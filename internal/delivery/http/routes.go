@@ -26,6 +26,7 @@ func (s HttpServer) setRoutes(router chi.Router) http.Handler {
 	router.Route("/panel", func(r chi.Router) {
 		r.Use(middleware.Authenticate(s.TokenSvc))
 		r.Get("/stores/nearest", s.Handlers.Store.ListNearest)
+		r.Get("/products", s.Handlers.Product.FilteredList)
 	})
 
 	router.Route("/stores", func(r chi.Router) {

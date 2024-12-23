@@ -16,6 +16,14 @@ type ProductRes struct {
 	CategoryID int     `json:"category_id"`
 	StoreID    int     `json:"store_id"`
 	Status     int8    `json:"status"`
+
+	Store StoreRes `json:"store,omitempty"`
+}
+
+type StoreRes struct {
+	ID   int    `json:"id"`
+	Name string `json:"name"`
+	Slug string `json:"slug"`
 }
 
 func (s Service) List(ctx context.Context, storeID int) ([]ProductRes, error) {
@@ -41,6 +49,46 @@ func (s Service) List(ctx context.Context, storeID int) ([]ProductRes, error) {
 			CategoryID: products[i].CategoryID,
 			StoreID:    products[i].StoreID,
 			Status:     products[i].Status,
+			Store: StoreRes{
+				ID:   products[i].Store.ID,
+				Name: products[i].Store.Name,
+				Slug: products[i].Store.Slug,
+			},
+		})
+	}
+
+	return productRes, nil
+}
+
+type Filters struct {
+	Sort []string
+}
+
+func (s Service) FilteredList(ctx context.Context, userID int, req Filters) ([]ProductRes, error) {
+	const getListOfProductsByUserIDSysMSG = "product service filteredList"
+
+	products, err := s.repo.GetByUserID(ctx, userID, req.Sort)
+	if err != nil {
+		return nil, apperr.New(apperr.Unexpected).WithErr(err).WithSysMsg(getListOfProductsByUserIDSysMSG)
+	}
+
+	productRes := make([]ProductRes, 0, len(products))
+	for _, product := range products {
+		productRes = append(productRes, ProductRes{
+			ID:         product.ID,
+			Name:       product.Name,
+			Price:      float64(product.Price / 10),
+			Image:      product.Image,
+			Slug:       product.Slug,
+			Rate:       product.Rate,
+			CategoryID: product.CategoryID,
+			StoreID:    product.StoreID,
+			Status:     product.Status,
+			Store: StoreRes{
+				ID:   product.Store.ID,
+				Name: product.Store.Name,
+				Slug: product.Store.Slug,
+			},
 		})
 	}
 

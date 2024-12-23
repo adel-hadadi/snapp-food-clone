@@ -4,8 +4,9 @@ import (
 	"context"
 	"time"
 
-	"github.com/jmoiron/sqlx"
 	"snapp-food/internal/entity"
+
+	"github.com/jmoiron/sqlx"
 )
 
 type ProductRepository struct {
@@ -179,6 +180,59 @@ func (r ProductRepository) GetByStoreID(ctx context.Context, storeID int) ([]ent
 		}
 
 		products = append(products, product)
+	}
+
+	return products, nil
+}
+
+func (r ProductRepository) GetByUserID(ctx context.Context, userID int, sort []string) ([]entity.Product, error) {
+	ctx, cancel := context.WithTimeout(ctx, 3*time.Second)
+	defer cancel()
+
+	// TODO: check distance
+	query := `
+    SELECT products.*, stores.id, stores.name, stores.slug FROM products
+    LEFT JOIN stores ON stores.id = products.store_id
+    WHERE products.store_id IN (
+        select stores.id from stores where city_id=(
+            select ua.city_id from users
+            left join user_addresses as ua on ua.id = users.default_address_id
+            where users.id = $1
+        )
+    )`
+
+	// TODO: sort by paramter
+	rows, err := r.db.QueryContext(ctx, query, userID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	products := make([]entity.Product, 0)
+	for rows.Next() {
+		var p entity.Product
+
+		if err := rows.Scan(
+			&p.ID,
+			&p.Name,
+			&p.Slug,
+			&p.Image,
+			&p.Rate,
+			&p.StoreID,
+			&p.CategoryID,
+			&p.Status,
+			&p.CreatedAt,
+			&p.UpdatedAt,
+			&p.Price,
+			&p.ProductCategoryID,
+			&p.Store.ID,
+			&p.Store.Name,
+			&p.Store.Slug,
+		); err != nil {
+			return nil, err
+		}
+
+		products = append(products, p)
 	}
 
 	return products, nil

@@ -143,6 +143,12 @@ func (s Service) Nearest(ctx context.Context, userID int) ([]StoreRes, error) {
 			Slug:    store.Slug,
 			Address: store.Address,
 			Logo:    store.Logo,
+			StoreType: storetypeservice.StoreType{
+				ID:    store.StoreType.ID,
+				Name:  store.StoreType.Name,
+				Image: store.StoreType.Image,
+				URL:   store.StoreType.URL,
+			},
 		})
 	}
 

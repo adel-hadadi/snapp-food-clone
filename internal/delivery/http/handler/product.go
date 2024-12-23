@@ -17,6 +17,7 @@ type ProductHandler struct {
 type productService interface {
 	Create(ctx context.Context, storeID int, req productservice.CreateProductReq) error
 	List(ctx context.Context, storeID int) ([]productservice.ProductRes, error)
+	FilteredList(ctx context.Context, authID int, req productservice.Filters) ([]productservice.ProductRes, error)
 }
 
 func NewProductHandler(service productService) ProductHandler {
@@ -92,4 +93,22 @@ func (h ProductHandler) List(w http.ResponseWriter, r *http.Request) {
 	}
 
 	httpres.Success(w, res, http.StatusOK)
+}
+
+func (h ProductHandler) FilteredList(w http.ResponseWriter, r *http.Request) {
+	queryParams := r.URL.Query()
+
+	products, err := h.productSvc.FilteredList(
+		r.Context(),
+		httpreq.AuthID(r),
+		productservice.Filters{
+			Sort: queryParams["sort"],
+		})
+
+	if err != nil {
+		httpres.WithErr(w, err)
+		return
+	}
+
+	httpres.Success(w, products, http.StatusOK)
 }

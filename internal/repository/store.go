@@ -226,8 +226,9 @@ func (r StoreRepository) Nearest(ctx context.Context, userID int) ([]entity.Stor
 	defer cancel()
 
 	query := `
-	SELECT stores.id, stores.name, stores.slug, stores.logo FROM stores
+	SELECT stores.id, stores.name, stores.slug, stores.logo, store_types.id, store_types.name, store_types.image FROM stores
 	RIGHT JOIN user_addresses ON user_addresses.id = (select default_address_id from users where users.id=$1)
+    LEFT JOIN store_types ON store_types.id = stores.store_type_id
 	WHERE stores.city_id = user_addresses.city_id
 	ORDER BY stores.location <-> user_addresses.location
 	`
@@ -248,6 +249,9 @@ func (r StoreRepository) Nearest(ctx context.Context, userID int) ([]entity.Stor
 			&store.Name,
 			&store.Slug,
 			&store.Logo,
+			&store.StoreType.ID,
+			&store.StoreType.Name,
+			&store.StoreType.Image,
 		); err != nil {
 			return nil, err
 		}
