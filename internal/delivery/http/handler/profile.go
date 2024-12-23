@@ -34,11 +34,12 @@ func NewProfileHandler(userSvc userService, userAddressSvc userAddressService) P
 }
 
 type PersonalInfoRes struct {
-	ID         int     `json:"id"`
-	FirstName  *string `json:"first_name"`
-	LastName   *string `json:"last_name"`
-	Phone      string  `json:"phone"`
-	NationalID *string `json:"national_id"`
+	ID               int     `json:"id"`
+	FirstName        *string `json:"first_name"`
+	LastName         *string `json:"last_name"`
+	Phone            string  `json:"phone"`
+	NationalID       *string `json:"national_id"`
+	DefaultAddressID *int    `json:"default_address_id"`
 }
 
 func (h ProfileHandler) PersonalInfo(w http.ResponseWriter, r *http.Request) {
@@ -52,11 +53,12 @@ func (h ProfileHandler) PersonalInfo(w http.ResponseWriter, r *http.Request) {
 	}
 
 	httpres.Success(w, PersonalInfoRes{
-		ID:         user.ID,
-		FirstName:  user.FirstName,
-		LastName:   user.LastName,
-		Phone:      user.Phone,
-		NationalID: user.NationalID,
+		ID:               user.ID,
+		FirstName:        user.FirstName,
+		LastName:         user.LastName,
+		Phone:            user.Phone,
+		NationalID:       user.NationalID,
+		DefaultAddressID: user.DefaultAddressID,
 	}, http.StatusOK)
 }
 

@@ -6,11 +6,12 @@ import (
 )
 
 type UserRes struct {
-	ID         int
-	FirstName  *string
-	LastName   *string
-	Phone      string
-	NationalID *string
+	ID               int
+	FirstName        *string
+	LastName         *string
+	Phone            string
+	NationalID       *string
+	DefaultAddressID *int
 }
 
 func (s Service) Get(ctx context.Context, userID int) (UserRes, error) {
@@ -28,10 +29,11 @@ func (s Service) Get(ctx context.Context, userID int) (UserRes, error) {
 	}
 
 	return UserRes{
-		ID:         userID,
-		FirstName:  user.FirstName,
-		LastName:   user.LastName,
-		Phone:      user.Phone,
-		NationalID: user.NationalID,
+		ID:               userID,
+		FirstName:        user.FirstName,
+		LastName:         user.LastName,
+		Phone:            user.Phone,
+		NationalID:       user.NationalID,
+		DefaultAddressID: user.DefaultAddressID,
 	}, nil
 }
