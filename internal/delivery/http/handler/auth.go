@@ -3,15 +3,16 @@ package handler
 import (
 	"context"
 	"net/http"
+	"snapp-food/internal/adapters/validation"
+	"snapp-food/internal/dto"
 	authservice "snapp-food/internal/service/auth"
 	tokenservice "snapp-food/internal/service/token"
 	"snapp-food/pkg/httpres"
 	"snapp-food/pkg/server/httpreq"
-	"snapp-food/pkg/validate"
 )
 
 type AuthHandler struct {
-	validator validate.Validator
+	validator validation.AuthValidation
 	authSvc   authService
 }
 
@@ -19,27 +20,22 @@ type authService interface {
 	LoginRegister(ctx context.Context, req authservice.LoginRegisterReq) (tokenservice.TokenRes, error)
 }
 
-func NewAuthHandler(v validate.Validator, authSvc authService) AuthHandler {
+func NewAuthHandler(v validation.AuthValidation, authSvc authService) AuthHandler {
 	return AuthHandler{
 		validator: v,
 		authSvc:   authSvc,
 	}
 }
 
-type LoginRegisterReq struct {
-	Phone string `json:"phone"`
-	Code  int    `json:"code"`
-}
-
-type LoginRegisterRes struct {
-	AccessToken  string `json:"access_token"`
-	RefreshToken string `json:"refresh_token"`
-}
-
 func (h AuthHandler) LoginRegister(w http.ResponseWriter, r *http.Request) {
-	req, err := httpreq.Bind[LoginRegisterReq](r)
+	req, err := httpreq.Bind[dto.AuthLoginRegisterReq](r)
 	if err != nil {
 		httpres.WithErr(w, err)
+		return
+	}
+
+	if errs, ok := h.validator.ValidateLoginRegister(req); !ok {
+		httpres.ValidationErr(w, errs, http.StatusBadRequest)
 		return
 	}
 
@@ -52,28 +48,8 @@ func (h AuthHandler) LoginRegister(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	httpres.Success(w, LoginRegisterRes{
+	httpres.Success(w, dto.LoginRegisterRes{
 		AccessToken:  token.AccessToken,
 		RefreshToken: token.RefreshToken,
 	}, http.StatusOK)
-}
-
-type RegisterReq struct {
-	Name  string `json:"name" validate:"required"`
-	Phone string `json:"phone" validate:"required"`
-}
-
-func (h AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
-	req, err := httpreq.Bind[RegisterReq](r)
-	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		return
-	}
-
-	if err := h.validator.Struct(req); err != nil {
-		httpres.ValidationErr(w, err, http.StatusBadRequest)
-		return
-	}
-
-	httpres.Success(w, nil, http.StatusOK)
 }

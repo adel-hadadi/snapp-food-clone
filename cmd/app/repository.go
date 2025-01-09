@@ -15,6 +15,9 @@ type Repositories struct {
 	ProductRepo         repository.ProductRepository
 	StoreCategoryRepo   repository.StoreCategoryRepository
 	ProductCategoryRepo repository.ProductCategoryRepository
+	OrderRepo           repository.OrderRepository
+	ProvinceRepo        repository.ProvinceRepository
+	CityRepo            repository.CityRepository
 }
 
 func (a *Application) setupRepositories(db *sqlx.DB) {
@@ -27,5 +30,8 @@ func (a *Application) setupRepositories(db *sqlx.DB) {
 		ProductRepo:         repository.NewProductRepository(db),
 		StoreCategoryRepo:   repository.NewStoreCategoryRepository(db),
 		ProductCategoryRepo: repository.NewProductCategoryRepository(db),
+		OrderRepo:           repository.NewOrderRepository(db),
+		ProvinceRepo:        repository.NewProvinceRepository(db),
+		CityRepo:            repository.NewCityRepository(db),
 	}
 }

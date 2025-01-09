@@ -15,11 +15,22 @@ type StoreCategoryHandler struct {
 
 type storeCategoryService interface {
 	Create(ctx context.Context, storeID int, name string) error
+	// List(ctx context.Context) ([]storecategoryservice.StoreCategoryRes, error)
 }
 
 func NewStoreCategoryHandler(service storeCategoryService) StoreCategoryHandler {
 	return StoreCategoryHandler{storeCategorySvc: service}
 }
+
+// func (h StoreCategoryHandler) List(w http.ResponseWriter, r *http.Request) {
+// 	storeCategories, err := h.storeCategorySvc.List(r.Context())
+// 	if err != nil {
+// 		httpres.WithErr(w, err)
+// 		return
+// 	}
+//
+// 	httpres.Success(w, storeCategories, http.StatusOK)
+// }
 
 type CreateStoreCategoryReq struct {
 	Name string `json:"name"`

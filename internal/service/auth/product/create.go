@@ -3,9 +3,10 @@ package productserviec
 import (
 	"context"
 
-	"github.com/gosimple/slug"
 	"snapp-food/internal/entity"
 	"snapp-food/pkg/apperr"
+
+	"github.com/gosimple/slug"
 )
 
 type CreateProductReq struct {
@@ -23,7 +24,7 @@ func (s Service) Create(ctx context.Context, storeID int, req CreateProductReq) 
 		Slug:       slug.MakeLang(req.Name, "fa"),
 		Image:      req.Image,
 		StoreID:    storeID,
-		CategoryID: req.CategoryID,
+		CategoryID: &req.CategoryID,
 		Price:      int(req.Price * 10),
 	}); err != nil {
 		return apperr.New(apperr.Unexpected).WithErr(err).WithSysMsg(createProductSysMSG)

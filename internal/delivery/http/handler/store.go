@@ -4,6 +4,7 @@ import (
 	"context"
 	"log"
 	"net/http"
+	"strings"
 	"time"
 
 	storeservice "snapp-food/internal/service/store"
@@ -23,6 +24,7 @@ type storeService interface {
 	List(ctx context.Context) ([]storeservice.StoreRes, error)
 	ExistsByPhone(ctx context.Context, phone string) (bool, error)
 	Nearest(ctx context.Context, userID int) ([]storeservice.StoreRes, error)
+	ListByProductCategory(ctx context.Context, userID int, slug string) ([]storeservice.StoreRes, error)
 }
 
 func NewStoreHandler(storeSvc storeService) StoreHandler {
@@ -49,7 +51,9 @@ func (h StoreHandler) Create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// TODO: validate data
+	if strings.HasPrefix(req.Phone, "0") {
+		req.Phone = req.Phone[1:]
+	}
 
 	if err := h.storeSvc.Create(r.Context(), storeservice.CreateReq{
 		Name:             req.Name,
@@ -131,6 +135,20 @@ func (h StoreHandler) ListNearest(w http.ResponseWriter, r *http.Request) {
 	}
 
 	httpres.Success(w, res, http.StatusOK)
+}
+
+func (h StoreHandler) ListByProductCategory(w http.ResponseWriter, r *http.Request) {
+	slug := chi.URLParam(r, "slug")
+
+	userID := httpreq.AuthID(r)
+
+	stores, err := h.storeSvc.ListByProductCategory(r.Context(), userID, slug)
+	if err != nil {
+		httpres.WithErr(w, err)
+		return
+	}
+
+	httpres.Success(w, stores, http.StatusOK)
 }
 
 func (h StoreHandler) Dashboard(w http.ResponseWriter, r *http.Request) {

@@ -11,6 +11,7 @@ type Store struct {
 	ID               int       `json:"id" db:"id"`
 	Name             string    `json:"name" db:"name"`
 	Slug             string    `json:"slug" db:"slug"`
+	Rate             float32   `json:"rate" db:"rate"`
 	ManagerFirstName string    `json:"manager_first_name" db:"manager_first_name"`
 	ManagerLastName  string    `json:"manager_last_name" db:"manager_last_name"`
 	Phone            string    `json:"phone" db:"phone"`
@@ -31,6 +32,10 @@ type Store struct {
 func (s *Store) GenLatAndLong() {
 	rgx := regexp.MustCompile(`\((.*?)\)`)
 	rs := rgx.FindStringSubmatch(s.Location)
+
+	if len(rs) == 0 {
+		return
+	}
 
 	points := strings.Split(rs[1], " ")
 

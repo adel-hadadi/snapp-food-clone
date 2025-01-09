@@ -10,6 +10,9 @@ up-build:
 	docker compose up -d --build
 	@docker compose logs -f
 
+up-front:
+	@cd ./web/ && npm run dev
+
 logs:
 	docker compose logs -f
 

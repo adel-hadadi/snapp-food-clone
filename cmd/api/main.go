@@ -6,9 +6,9 @@ import (
 	"snapp-food/cmd/app"
 	"snapp-food/data/database"
 	"snapp-food/internal/delivery/http"
-	"snapp-food/pkg/validate"
 
 	"github.com/joho/godotenv"
+	validator "github.com/rezakhademix/govalidator/v2"
 )
 
 const ErrLoadConfigFile = "error on loading config file: %w"
@@ -18,11 +18,11 @@ func main() {
 		panic(fmt.Errorf(ErrLoadConfigFile, err))
 	}
 
-	validator := validate.New()
+	v := validator.New()
 
 	db := database.New()
 
-	app := app.New(db, validator)
+	app := app.New(db, v)
 
 	http.New(app.Handlers, app.Services.Token).
 		Run(os.Getenv("PORT"))

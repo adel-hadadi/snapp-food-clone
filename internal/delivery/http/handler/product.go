@@ -62,7 +62,7 @@ type ProductRes struct {
 	Image      string  `json:"image"`
 	Slug       string  `json:"slug"`
 	Rate       float32 `json:"rate"`
-	CategoryID int     `json:"category_id"`
+	CategoryID *int    `json:"category_id"`
 	StoreID    int     `json:"store_id"`
 	Status     int8    `json:"status"`
 }

@@ -14,6 +14,7 @@ type StoreRes struct {
 	ID               int       `json:"id"`
 	Name             string    `json:"name"`
 	Slug             string    `json:"slug"`
+	Rate             float32   `json:"rate"`
 	ManagerFirstName string    `json:"manager_first_name"`
 	ManagerLastName  string    `json:"manager_last_name"`
 	Phone            string    `json:"phone"`
@@ -25,8 +26,8 @@ type StoreRes struct {
 	CreatedAt        time.Time `json:"created_at"`
 	UpdatedAt        time.Time `json:"updated_at"`
 
-	Categories []CategoryRes `json:"categories"`
-	StoreType  storetypeservice.StoreType
+	Categories []CategoryRes              `json:"categories"`
+	StoreType  storetypeservice.StoreType `json:"store_type"`
 }
 
 type CategoryRes struct {
@@ -51,6 +52,7 @@ func (s Service) Find(ctx context.Context, slug string) (StoreRes, error) {
 		ID:               store.ID,
 		Name:             store.Name,
 		Slug:             store.Slug,
+		Rate:             store.Rate,
 		ManagerFirstName: store.ManagerFirstName,
 		ManagerLastName:  store.ManagerLastName,
 		Phone:            store.Phone,
@@ -153,4 +155,41 @@ func (s Service) Nearest(ctx context.Context, userID int) ([]StoreRes, error) {
 	}
 
 	return storeRes, nil
+}
+
+func (s Service) ListByProductCategory(ctx context.Context, userID int, productCategorySlug string) ([]StoreRes, error) {
+	const getListOfStoresSysMsg = "store service get list of stores"
+
+	stores, err := s.repo.GetByProductCategory(ctx, userID, productCategorySlug)
+	if err != nil {
+		return nil, apperr.New(apperr.Unexpected).WithErr(err).WithSysMsg(getListOfStoresSysMsg)
+	}
+
+	res := make([]StoreRes, 0, len(stores))
+	for i := range stores {
+		res = append(res, StoreRes{
+			ID:               stores[i].ID,
+			Name:             stores[i].Name,
+			Slug:             stores[i].Slug,
+			ManagerFirstName: stores[i].ManagerFirstName,
+			ManagerLastName:  stores[i].ManagerLastName,
+			Phone:            stores[i].Phone,
+			Address:          stores[i].Address,
+			Latitude:         stores[i].Latitude,
+			Longitude:        stores[i].Longitude,
+			Logo:             stores[i].Logo,
+			StoreTypeID:      stores[i].StoreTypeID,
+			CreatedAt:        stores[i].CreatedAt,
+			UpdatedAt:        stores[i].UpdatedAt,
+
+			StoreType: storetypeservice.StoreType{
+				ID:    stores[i].StoreType.ID,
+				Name:  stores[i].StoreType.Name,
+				Image: stores[i].StoreType.Image,
+				URL:   stores[i].StoreType.URL,
+			},
+		})
+	}
+
+	return res, nil
 }

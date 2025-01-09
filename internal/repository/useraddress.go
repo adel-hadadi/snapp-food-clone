@@ -5,8 +5,9 @@ import (
 	"log"
 	"time"
 
-	"github.com/jmoiron/sqlx"
 	"snapp-food/internal/entity"
+
+	"github.com/jmoiron/sqlx"
 )
 
 type UserAddressRepository struct {
@@ -109,4 +110,25 @@ func (r UserAddressRepository) BelongsToUser(ctx context.Context, addressID, use
 	err := r.db.QueryRowContext(ctx, query, userID, addressID).Scan(&exists)
 
 	return exists, err
+}
+
+func (r UserAddressRepository) GetUserDefaultAddress(ctx context.Context, userID int) (entity.UserAddress, error) {
+	ctx, cancel := context.WithTimeout(ctx, 3*time.Second)
+	defer cancel()
+
+	query := `SELECT id, name, address FROM user_addresses WHERE user_addresses.id = (
+		SELECT default_address_id FROM users WHERE users.id = $1
+	)`
+
+	var address entity.UserAddress
+	if err := r.db.QueryRowContext(ctx, query, userID).
+		Scan(
+			&address.ID,
+			&address.Name,
+			&address.Address,
+		); err != nil {
+		return entity.UserAddress{}, err
+	}
+
+	return address, nil
 }

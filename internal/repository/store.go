@@ -50,10 +50,12 @@ func (r StoreRepository) FindBySlug(ctx context.Context, slug string) (entity.St
 	defer cancel()
 
 	query := `SELECT 
-id, name, slug, logo, store_type_id, status, created_at,
-updated_at, manager_first_name, manager_last_name, phone, st_astext(location),
-    store_types.id, store_types.name, store_types.image, store_types.url
-FROM stores LEFT JOIN store_types ON store_types.id = store.store_type_id WHERE slug=$1`
+        stores.id, stores.name, stores.slug, stores.logo, stores.store_type_id, stores.status, stores.created_at,
+        stores.updated_at, stores.manager_first_name, stores.manager_last_name, stores.phone, st_astext(location),
+        stores.rate, store_types.id, store_types.name, store_types.image, store_types.url
+    FROM stores
+    LEFT JOIN store_types ON store_types.id = stores.store_type_id 
+    WHERE stores.slug=$1`
 
 	var store entity.Store
 	err := r.db.QueryRowContext(ctx, query, slug).Scan(
@@ -69,6 +71,7 @@ FROM stores LEFT JOIN store_types ON store_types.id = store.store_type_id WHERE 
 		&store.ManagerLastName,
 		&store.Phone,
 		&store.Location,
+		&store.Rate,
 		&store.StoreType.ID,
 		&store.StoreType.Name,
 		&store.StoreType.Image,
@@ -152,6 +155,58 @@ FROM stores LEFT JOIN store_types ON store_types.id = stores.store_type_id`
 			return nil, err
 		}
 
+		stores = append(stores, store)
+	}
+
+	return stores, nil
+}
+
+func (r StoreRepository) GetByProductCategory(ctx context.Context, userID int, productCategorySlug string) ([]entity.Store, error) {
+	ctx, cancel := context.WithTimeout(ctx, 3*time.Second)
+	defer cancel()
+
+	query := `SELECT 
+		stores.id, stores.name, stores.slug, stores.logo, stores.store_type_id, stores.status, stores.created_at,
+		stores.updated_at, stores.manager_first_name, stores.manager_last_name, stores.phone, st_astext(stores.location),
+    	store_types.id, store_types.name, store_types.url, store_types.image
+	FROM stores 
+	LEFT JOIN store_types ON stores.store_type_id = store_types.id
+	WHERE stores.id IN (
+		select store_id from products where product_category_id = (
+			select product_categories.id from product_categories where product_categories.slug = $1
+		)
+	)`
+
+	rows, err := r.db.QueryContext(ctx, query, productCategorySlug)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	stores := make([]entity.Store, 0)
+	for rows.Next() {
+		var store entity.Store
+		if err := rows.Scan(
+			&store.ID,
+			&store.Name,
+			&store.Slug,
+			&store.Logo,
+			&store.StoreTypeID,
+			&store.Status,
+			&store.CreatedAt,
+			&store.UpdatedAt,
+			&store.ManagerFirstName,
+			&store.ManagerLastName,
+			&store.Phone,
+			&store.Location,
+
+			&store.StoreType.ID,
+			&store.StoreType.Name,
+			&store.StoreType.URL,
+			&store.StoreType.Image,
+		); err != nil {
+			return nil, err
+		}
 		stores = append(stores, store)
 	}
 

@@ -1,6 +1,8 @@
 module snapp-food
 
-go 1.21.5
+go 1.22.0
+
+toolchain go1.22.10
 
 require (
 	github.com/go-chi/chi/v5 v5.1.0
@@ -16,9 +18,11 @@ require (
 
 require (
 	github.com/gabriel-vasile/mimetype v1.4.3 // indirect
+	github.com/google/uuid v1.6.0 // indirect
 	github.com/gosimple/slug v1.14.0 // indirect
 	github.com/gosimple/unidecode v1.0.1 // indirect
 	github.com/leodido/go-urn v1.4.0 // indirect
+	github.com/rezakhademix/govalidator/v2 v2.1.0 // indirect
 	golang.org/x/crypto v0.19.0 // indirect
 	golang.org/x/net v0.21.0 // indirect
 	golang.org/x/sys v0.17.0 // indirect

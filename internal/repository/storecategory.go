@@ -4,8 +4,9 @@ import (
 	"context"
 	"time"
 
-	"github.com/jmoiron/sqlx"
 	"snapp-food/internal/entity"
+
+	"github.com/jmoiron/sqlx"
 )
 
 type StoreCategoryRepository struct {
@@ -87,7 +88,7 @@ func (r StoreCategoryRepository) GetByStoreID(ctx context.Context, storeID int) 
 			return nil, err
 		}
 
-		query = `SELECT id, name, slug, image, rate, price FROM products WHERE category_id = $1`
+		query = `SELECT id, name, slug, image, rate, price, description FROM products WHERE category_id = $1`
 
 		productRows, err := r.db.QueryContext(ctx, query, c.ID)
 		if err != nil {
@@ -103,6 +104,7 @@ func (r StoreCategoryRepository) GetByStoreID(ctx context.Context, storeID int) 
 				&p.Image,
 				&p.Rate,
 				&p.Price,
+				&p.Description,
 			); err != nil {
 				return nil, err
 			}

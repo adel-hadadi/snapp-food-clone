@@ -2,7 +2,6 @@ package app
 
 import (
 	"snapp-food/internal/delivery/http/handler"
-	"snapp-food/pkg/validate"
 )
 
 type Handlers struct {
@@ -15,12 +14,15 @@ type Handlers struct {
 	Product         handler.ProductHandler
 	StoreCategory   handler.StoreCategoryHandler
 	ProductCategory handler.ProductCategoryHandler
+	Order           handler.OrderHandler
+	Province        handler.ProvinceHandler
+	City            handler.CityHandler
 }
 
-func (a *Application) setupHandlers(v validate.Validator) {
+func (a *Application) setupHandlers() {
 	a.Handlers = Handlers{
-		Auth:            handler.NewAuthHandler(v, a.Services.Auth),
-		OTP:             handler.NewOTPHandler(v, a.Services.OTPService),
+		Auth:            handler.NewAuthHandler(a.Validations.Auth, a.Services.Auth),
+		OTP:             handler.NewOTPHandler(a.Services.OTPService),
 		Profile:         handler.NewProfileHandler(a.Services.User, a.Services.UserAddress),
 		StoreType:       handler.NewStoreTypeHandler(a.Services.StoreType),
 		Store:           handler.NewStoreHandler(a.Services.Store),
@@ -28,5 +30,8 @@ func (a *Application) setupHandlers(v validate.Validator) {
 		Product:         handler.NewProductHandler(a.Services.Product),
 		StoreCategory:   handler.NewStoreCategoryHandler(a.Services.StoreCategory),
 		ProductCategory: handler.NewProductCategoryHandler(a.Services.ProductCategory),
+		Order:           handler.NewOrderHandler(a.Services.Order),
+		Province:        handler.NewProvinceHandler(a.Services.Province),
+		City:            handler.NewCityHandler(a.Services.City),
 	}
 }

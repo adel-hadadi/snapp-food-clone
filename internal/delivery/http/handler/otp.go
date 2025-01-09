@@ -19,10 +19,10 @@ type otpService interface {
 	Send(ctx context.Context, req otpservice.OTPSendReq) error
 }
 
-func NewOTPHandler(v validate.Validator, otpSvc otpService) OTPHandler {
+func NewOTPHandler(otpSvc otpService) OTPHandler {
 	return OTPHandler{
-		validator: v,
-		otpSvc:    otpSvc,
+		// TODO: add validation
+		otpSvc: otpSvc,
 	}
 }
 

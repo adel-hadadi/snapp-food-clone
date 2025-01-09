@@ -1,25 +1,27 @@
 package app
 
 import (
-	"snapp-food/pkg/validate"
-
 	"github.com/jmoiron/sqlx"
+	"github.com/rezakhademix/govalidator/v2"
 )
 
 type Application struct {
 	Handlers     Handlers
 	Repositories Repositories
 	Services     Services
+	Validations  Validations
 }
 
-func New(db *sqlx.DB, validator validate.Validator) *Application {
+func New(db *sqlx.DB, validator govalidator.Validator) *Application {
 	app := new(Application)
 
 	app.setupRepositories(db)
 
 	app.setupServices()
 
-	app.setupHandlers(validator)
+	app.setupValidations(validator)
+
+	app.setupHandlers()
 
 	return app
 }

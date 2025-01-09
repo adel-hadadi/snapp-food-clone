@@ -7,15 +7,16 @@ import (
 )
 
 type ProductRes struct {
-	ID         int     `json:"id"`
-	Name       string  `json:"name"`
-	Price      float64 `json:"price"`
-	Image      string  `json:"image"`
-	Slug       string  `json:"slug"`
-	Rate       float32 `json:"rate"`
-	CategoryID int     `json:"category_id"`
-	StoreID    int     `json:"store_id"`
-	Status     int8    `json:"status"`
+	ID          int     `json:"id"`
+	Name        string  `json:"name"`
+	Price       float64 `json:"price"`
+	Image       string  `json:"image"`
+	Slug        string  `json:"slug"`
+	Rate        float32 `json:"rate"`
+	Description string  `json:"description"`
+	CategoryID  *int    `json:"category_id"`
+	StoreID     int     `json:"store_id"`
+	Status      int8    `json:"status"`
 
 	Store StoreRes `json:"store,omitempty"`
 }

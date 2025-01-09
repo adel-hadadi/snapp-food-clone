@@ -36,6 +36,8 @@ func (r ProductRepository) Find(ctx context.Context, id int) (entity.Product, er
 		&product.CreatedAt,
 		&product.UpdatedAt,
 		&product.Price,
+		&product.CategoryID,
+		&product.Description,
 	)
 
 	return product, err
@@ -225,6 +227,7 @@ func (r ProductRepository) GetByUserID(ctx context.Context, userID int, sort []s
 			&p.UpdatedAt,
 			&p.Price,
 			&p.ProductCategoryID,
+			&p.Description,
 			&p.Store.ID,
 			&p.Store.Name,
 			&p.Store.Slug,
@@ -236,4 +239,18 @@ func (r ProductRepository) GetByUserID(ctx context.Context, userID int, sort []s
 	}
 
 	return products, nil
+}
+
+func (r ProductRepository) CheckExists(ctx context.Context, id int) (bool, error) {
+	ctx, cancel := context.WithTimeout(ctx, 3*time.Second)
+	defer cancel()
+
+	query := `SELECT EXISTS (SELECT 1 FROM products WHERE id = $1)`
+
+	var exists bool
+	if err := r.db.QueryRowContext(ctx, query, id).Scan(&exists); err != nil {
+		return false, err
+	}
+
+	return exists, nil
 }

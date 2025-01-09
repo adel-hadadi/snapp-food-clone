@@ -1,7 +1,6 @@
 package apperr
 
 import (
-	"fmt"
 	"log"
 )
 
@@ -40,7 +39,7 @@ type AppErr struct {
 
 func (a *AppErr) Error() string {
 	if a.Type == Unexpected {
-		log.Println(fmt.Errorf("something bad haappened. err: %w", a.err))
+		log.Printf("[%s]: %v", a.sysMsg, a.err)
 		// logger.NewLogger().Errorf("something bad happened, clientMsg: %s, sysMsg: %s, err: %s", a.clientMsg, a.sysMsg, a.err)
 	}
 
