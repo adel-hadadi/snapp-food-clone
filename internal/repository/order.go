@@ -65,7 +65,8 @@ func (r OrderRepository) GetByUserID(ctx context.Context, userID int) ([]entity.
 	orders.*, stores.id, stores.name, stores.slug, stores.logo
 	FROM orders
 	LEFT JOIN stores ON stores.id = orders.store_id
-	WHERE orders.user_id = $1`
+	WHERE orders.user_id = $1
+    ORDER BY created_at DESC`
 
 	rows, err := r.db.QueryContext(ctx, query, userID)
 	if err != nil {
@@ -142,5 +143,15 @@ func (r OrderRepository) UpdateStatus(ctx context.Context, orderID int, status i
 
 	_, err := r.db.ExecContext(ctx, query, status, orderID)
 
+	return err
+}
+
+func (r OrderRepository) RemovePending(ctx context.Context) error {
+	ctx, cancel := context.WithTimeout(ctx, 3*time.Second)
+	defer cancel()
+
+	query := `DELETE FROM orders WHERE status=$1`
+
+	_, err := r.db.ExecContext(ctx, query, entity.OrderStatusPending)
 	return err
 }

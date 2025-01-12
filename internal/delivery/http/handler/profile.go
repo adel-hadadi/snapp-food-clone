@@ -4,7 +4,6 @@ import (
 	"context"
 	"net/http"
 
-	"snapp-food/internal/delivery/http/middleware"
 	userservice "snapp-food/internal/service/user"
 	useraddressservice "snapp-food/internal/service/useraddress"
 	"snapp-food/pkg/httpres"
@@ -43,10 +42,9 @@ type PersonalInfoRes struct {
 }
 
 func (h ProfileHandler) PersonalInfo(w http.ResponseWriter, r *http.Request) {
-	userIDRaw := r.Context().Value(middleware.UserCtxKey)
-	userID := userIDRaw.(float64)
+	userID := httpreq.AuthID(r)
 
-	user, err := h.userSvc.Get(r.Context(), int(userID))
+	user, err := h.userSvc.Get(r.Context(), userID)
 	if err != nil {
 		httpres.WithErr(w, err)
 		return

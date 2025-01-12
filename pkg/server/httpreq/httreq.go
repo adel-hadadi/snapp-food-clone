@@ -9,9 +9,7 @@ import (
 func AuthID(r *http.Request) int {
 	userIDRaw := r.Context().Value(middleware.UserCtxKey)
 
-	userID := userIDRaw.(float64)
-
-	return int(userID)
+	return userIDRaw.(int)
 }
 
 func Bind[T any](r *http.Request) (T, error) {

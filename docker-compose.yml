@@ -11,6 +11,16 @@ services:
     networks:
       - snapp-food
 
+  cron:
+    build:
+      context: .
+      dockerfile: cron.Dockerfile
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - snapp-food
+
   postgres:
     build:
       context: .

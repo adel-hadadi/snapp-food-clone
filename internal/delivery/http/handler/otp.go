@@ -7,12 +7,10 @@ import (
 	otpservice "snapp-food/internal/service/otp"
 	"snapp-food/pkg/httpres"
 	"snapp-food/pkg/server/httpreq"
-	"snapp-food/pkg/validate"
 )
 
 type OTPHandler struct {
-	otpSvc    otpService
-	validator validate.Validator
+	otpSvc otpService
 }
 
 type otpService interface {
@@ -21,7 +19,6 @@ type otpService interface {
 
 func NewOTPHandler(otpSvc otpService) OTPHandler {
 	return OTPHandler{
-		// TODO: add validation
 		otpSvc: otpSvc,
 	}
 }
@@ -35,11 +32,6 @@ const userOTPPrefix = "user"
 func (h OTPHandler) Send(w http.ResponseWriter, r *http.Request) {
 	req, err := httpreq.Bind[OTPSendReq](r)
 	if err != nil {
-		httpres.ValidationErr(w, err, http.StatusBadRequest)
-		return
-	}
-
-	if err := h.validator.Struct(req); err != nil {
 		httpres.ValidationErr(w, err, http.StatusBadRequest)
 		return
 	}

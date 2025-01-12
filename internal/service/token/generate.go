@@ -2,64 +2,68 @@ package tokenservice
 
 import (
 	"context"
-	"os"
+	"crypto/sha256"
+	"fmt"
 	"time"
-
-	"snapp-food/pkg/apperr"
 
 	"github.com/golang-jwt/jwt/v5"
 )
 
-type TokenRes struct {
-	AccessToken            string
-	RefreshToken           string
-	AccessTokenExpireTime  int64
-	RefreshTokenExpireTime int64
+func (s Service) GenerateTokens(ctx context.Context, userID int) (string, string, error) {
+	accessClaims := Claims{
+		UserID: userID,
+		RegisteredClaims: jwt.RegisteredClaims{
+			ExpiresAt: jwt.NewNumericDate(
+				time.Now().Add(AccessTokenExpireTime * time.Second),
+			),
+		},
+	}
+	accessToken, err := jwt.NewWithClaims(jwt.SigningMethodHS256, accessClaims).SignedString([]byte(s.accessSecret))
+	if err != nil {
+		return "", "", err
+	}
+
+	refreshClaims := Claims{
+		UserID: userID,
+		RegisteredClaims: jwt.RegisteredClaims{
+			ExpiresAt: jwt.NewNumericDate(
+				time.Now().Add(RefreshTokenExpireTime * time.Second),
+			),
+		},
+	}
+	refreshToken, err := jwt.NewWithClaims(jwt.SigningMethodHS256, refreshClaims).SignedString([]byte(s.refreshSecret))
+	if err != nil {
+		return "", "", err
+	}
+
+	refreshHash := hashToken(refreshToken)
+
+	if err := s.repo.Create(
+		ctx,
+		userID,
+		refreshHash,
+		refreshClaims.ExpiresAt.Time,
+	); err != nil {
+		return "", "", err
+	}
+
+	return accessToken, refreshToken, nil
 }
 
-type GenerateTokenReq struct {
-	Name   string
-	Phone  string
-	UserID int
+func (s Service) GenerateAccessToken(userID int) (string, error) {
+	claims := Claims{
+		UserID: userID,
+		RegisteredClaims: jwt.RegisteredClaims{
+			ExpiresAt: jwt.NewNumericDate(
+				time.Now().Add(AccessTokenExpireTime * time.Second),
+			),
+		},
+	}
+	return jwt.NewWithClaims(jwt.SigningMethodHS256, claims).SignedString([]byte(s.accessSecret))
 }
 
-func (s Service) Generate(ctx context.Context, user GenerateTokenReq) (TokenRes, error) {
-	var t TokenRes
-
-	t.AccessTokenExpireTime = time.Now().Add(AccessTokenExpireTime * time.Second).Unix()
-	t.RefreshTokenExpireTime = time.Now().Add(RefreshTokenExpireTime * time.Second).Unix()
-
-	// TODO: fix jwt claims
-	atc := jwt.MapClaims{
-		UserID:                   user.UserID,
-		Name:                     user.Name,
-		Phone:                    user.Phone,
-		"accessTokenExpireTime":  t.AccessTokenExpireTime,
-		"refreshTokenExpireTime": t.RefreshTokenExpireTime,
-	}
-	at := jwt.NewWithClaims(jwt.SigningMethodHS256, atc)
-
-	var err error
-
-	const GenerateTokenSysMsg = "jwt service generate jwt token"
-	t.AccessToken, err = at.SignedString([]byte(os.Getenv("SECRET")))
-	if err != nil {
-		return TokenRes{}, apperr.New(apperr.Unexpected).WithErr(err).
-			WithSysMsg(GenerateTokenSysMsg)
-	}
-
-	rtc := jwt.MapClaims{
-		UserID:                   user.UserID,
-		"refreshTokenExpireTime": t.RefreshTokenExpireTime,
-	}
-
-	rt := jwt.NewWithClaims(jwt.SigningMethodHS256, rtc)
-	t.RefreshToken, err = rt.SignedString([]byte(os.Getenv("SECRET")))
-
-	if err != nil {
-		return TokenRes{}, apperr.New(apperr.Unexpected).WithErr(err).
-			WithSysMsg(GenerateTokenSysMsg)
-	}
-
-	return t, nil
+func hashToken(token string) string {
+	h := sha256.New()
+	h.Write([]byte(token))
+	return fmt.Sprintf("%x", h.Sum(nil))
 }

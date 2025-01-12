@@ -28,13 +28,13 @@ func Authenticate(tokenSvc tokenservice.Service) func(http.Handler) http.Handler
 			}
 
 			// TODO: claim token
-			claims, err := tokenSvc.Claim(r.Context(), tokenString[1])
+			claims, err := tokenSvc.GetClaims(tokenString[1])
 			if err != nil {
 				w.WriteHeader(http.StatusUnauthorized)
 				return
 			}
 
-			ctx := context.WithValue(r.Context(), UserCtxKey, claims[tokenservice.UserID])
+			ctx := context.WithValue(r.Context(), UserCtxKey, claims.UserID)
 
 			next.ServeHTTP(w, r.WithContext(ctx))
 		})

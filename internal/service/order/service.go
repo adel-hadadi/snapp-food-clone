@@ -17,6 +17,7 @@ type orderRepository interface {
 	GetByUserID(ctx context.Context, userID int) ([]entity.Order, error)
 	GetByID(ctx context.Context, orderID int) (entity.Order, error)
 	UpdateStatus(ctx context.Context, orderID int, status int8) error
+	RemovePending(ctx context.Context) error
 }
 
 type productRepository interface {

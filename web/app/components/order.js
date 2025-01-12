@@ -9,8 +9,8 @@ const Order = ({ order, rerender }) => {
     const handlePay = () => {
         fetch(`http://localhost/api/profile/orders/${order.id}/pay`, {
             headers: {
-                authorization: 'Bearer ' + localStorage.getItem('access_token'),
-            }
+                authorization: "Bearer " + localStorage.getItem("access_token"),
+            },
         })
             .then((res) => res.json())
             .then(() => rerender());
@@ -21,7 +21,7 @@ const Order = ({ order, rerender }) => {
     };
 
     return (
-        <li>
+        <li className="mb-4">
             <section className="flex">
                 <Image
                     src={order.store.logo}
@@ -59,35 +59,37 @@ const Order = ({ order, rerender }) => {
                 )}
             </section>
 
-            <section className="border">
-                <button
-                    className="py-1 w-full inline-flex justify-center items-center"
-                    onClick={handleToggleShowItems}
-                >
-                    مشاهده فاکتور <FaAngleDown />
-                </button>
+            {order.status_label === "done" && (
+                <section className="border">
+                    <button
+                        className="py-1 w-full inline-flex justify-center items-center"
+                        onClick={handleToggleShowItems}
+                    >
+                        مشاهده فاکتور <FaAngleDown />
+                    </button>
 
-                {showItems && (
-                    <ul className="px-3 py-2">
-                        {order.items.map((item) => (
-                            <li
-                                className="flex justify-between text-sm border-b py-2"
-                                key={item.id}
-                            >
-                                <span>{item.product.name}</span>
-                                <span>
-                                    {item.quantity} * {convertEnToFaNumber(item.price)} تومان
-                                </span>
+                    {showItems && (
+                        <ul className="px-3 py-2">
+                            {order.items.map((item) => (
+                                <li
+                                    className="flex justify-between text-sm border-b py-2"
+                                    key={item.id}
+                                >
+                                    <span>{item.product.name}</span>
+                                    <span>
+                                        {item.quantity} * {convertEnToFaNumber(item.price)} تومان
+                                    </span>
+                                </li>
+                            ))}
+
+                            <li className="flex justify-between text-sm border-b py-2">
+                                <span>مجموع</span>
+                                <span>{convertEnToFaNumber(order.amount)} تومان</span>
                             </li>
-                        ))}
-
-                        <li className="flex justify-between text-sm border-b py-2">
-                            <span>مجموع</span>
-                            <span>{convertEnToFaNumber(order.amount)} تومان</span>
-                        </li>
-                    </ul>
-                )}
-            </section>
+                        </ul>
+                    )}
+                </section>
+            )}
         </li>
     );
 };

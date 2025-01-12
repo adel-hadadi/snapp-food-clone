@@ -5,7 +5,6 @@ import (
 
 	"snapp-food/internal/entity"
 	otpservice "snapp-food/internal/service/otp"
-	tokenservice "snapp-food/internal/service/token"
 )
 
 type Service struct {
@@ -24,7 +23,8 @@ type userRepository interface {
 }
 
 type tokenService interface {
-	Generate(ctx context.Context, user tokenservice.GenerateTokenReq) (tokenservice.TokenRes, error)
+	GenerateTokens(ctx context.Context, userID int) (string, string, error)
+	RefreshAccessToken(ctx context.Context, refreshToken string) (string, error)
 }
 
 func New(otpSvc otpService, userRepo userRepository, tokenSvc tokenService) Service {

@@ -1,6 +1,7 @@
 package app
 
 import (
+	"os"
 	"snapp-food/internal/adapters"
 	authservice "snapp-food/internal/service/auth"
 	productserviec "snapp-food/internal/service/auth/product"
@@ -39,7 +40,11 @@ func (a *Application) setupServices() {
 	notification := adapters.NewNotificationSMS()
 
 	otpSvc := otpservice.New(notification, a.Repositories.OTPRepo)
-	tokenSvc := tokenservice.New()
+	tokenSvc := tokenservice.New(
+		a.Repositories.TokenRepo,
+		os.Getenv("ACCESS_SECRET"),
+		os.Getenv("REFRESH_SECRET"),
+	)
 
 	a.Services = Services{
 		OTPService:      otpSvc,

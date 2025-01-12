@@ -25,8 +25,7 @@ func DashboardAuthenticate(tokenSvc tokenservice.Service) func(http.Handler) htt
 				return
 			}
 
-			// TODO: claim token
-			claims, err := tokenSvc.Claim(r.Context(), tokenString[1])
+			claims, err := tokenSvc.GetClaims(tokenString[1])
 			if err != nil {
 				w.WriteHeader(http.StatusUnauthorized)
 				return
@@ -34,7 +33,7 @@ func DashboardAuthenticate(tokenSvc tokenservice.Service) func(http.Handler) htt
 
 			// TODO: check token is for an storage
 
-			ctx := context.WithValue(r.Context(), StoreCtxKey, claims[tokenservice.UserID])
+			ctx := context.WithValue(r.Context(), StoreCtxKey, claims.UserID)
 
 			next.ServeHTTP(w, r.WithContext(ctx))
 		})

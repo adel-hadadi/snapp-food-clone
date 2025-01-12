@@ -18,6 +18,7 @@ type Repositories struct {
 	OrderRepo           repository.OrderRepository
 	ProvinceRepo        repository.ProvinceRepository
 	CityRepo            repository.CityRepository
+	TokenRepo           repository.TokenRepository
 }
 
 func (a *Application) setupRepositories(db *sqlx.DB) {
@@ -33,5 +34,6 @@ func (a *Application) setupRepositories(db *sqlx.DB) {
 		OrderRepo:           repository.NewOrderRepository(db),
 		ProvinceRepo:        repository.NewProvinceRepository(db),
 		CityRepo:            repository.NewCityRepository(db),
+		TokenRepo:           repository.NewTokenRepository(db),
 	}
 }

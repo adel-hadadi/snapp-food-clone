@@ -6,33 +6,19 @@ import { IoPersonOutline } from "react-icons/io5";
 import Addresses from "../components/addresses";
 import Image from "next/image";
 import Cart from "./cart";
+import useAuthentication from "../hooks/useAuth";
+import AxiosInstance from "../utils/axiosInstance";
+import { ToastContainer } from "react-toastify";
 
 export default function PanelLayout({ children }) {
-  const [user, setUser] = useState({ first_name: "", last_name: "" });
+  const { user, isLoading } = useAuthentication();
   const [addresses, setAddresses] = useState([]);
 
   useEffect(() => {
-    fetch("http://localhost/api/profile/personal-info", {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        authorization: "Bearer " + localStorage.getItem("access_token"),
-      },
-    })
-      .then((response) => response.json())
-      .then((res) => {
-        setUser(res.data);
-
-        fetch("http://localhost/api/profile/addresses", {
-          headers: {
-            "Content-Type": "application/json",
-            authorization: "Bearer " + localStorage.getItem("access_token"),
-          },
-        })
-          .then((resposne) => resposne.json())
-          .then((res) => setAddresses(res.data));
-      });
-  }, []);
+    AxiosInstance.get("http://localhost/api/profile/addresses").then((res) =>
+      setAddresses(res.data.data),
+    );
+  }, [isLoading]);
 
   return (
     <>
@@ -52,7 +38,7 @@ export default function PanelLayout({ children }) {
           {addresses.length != 0 && (
             <Addresses
               addresses={addresses}
-              defaultAddress={user.default_address_id}
+              defaultAddress={user?.default_address_id}
             />
           )}
         </div>
@@ -61,7 +47,7 @@ export default function PanelLayout({ children }) {
           <Link href="/profile" className="flex items-center px-5 py-3 text-sm">
             <IoPersonOutline fontWeight="bold" />
             <span className="mx-2">
-              {user.first_name + " " + user.last_name}
+              {user?.first_name + " " + user?.last_name}
             </span>
           </Link>
 
@@ -69,14 +55,21 @@ export default function PanelLayout({ children }) {
         </div>
       </header>
 
+      <ToastContainer
+        position="top-right"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick={false}
+        rtl={true}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="light"
+        transition={Bounce}
+      />
+
       <div className="container mx-auto px-6">{children}</div>
-      <footer>
-        <ul>
-          <li>
-            <Link href="/campaign/food-registeration">ثبت نام فروشندگان</Link>
-          </li>
-        </ul>
-      </footer>
     </>
   );
 }

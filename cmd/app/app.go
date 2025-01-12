@@ -12,8 +12,10 @@ type Application struct {
 	Validations  Validations
 }
 
-func New(db *sqlx.DB, validator govalidator.Validator) *Application {
+func New(db *sqlx.DB) *Application {
 	app := new(Application)
+
+	validator := govalidator.New()
 
 	app.setupRepositories(db)
 

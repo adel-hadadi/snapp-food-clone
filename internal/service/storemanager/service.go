@@ -5,7 +5,6 @@ import (
 
 	"snapp-food/internal/entity"
 	otpservice "snapp-food/internal/service/otp"
-	tokenservice "snapp-food/internal/service/token"
 )
 
 type Service struct {
@@ -19,7 +18,7 @@ type otpService interface {
 }
 
 type tokenService interface {
-	Generate(ctx context.Context, user tokenservice.GenerateTokenReq) (tokenservice.TokenRes, error)
+	GenerateTokens(ctx context.Context, userID int) (string, string, error)
 }
 
 type storeRepository interface {

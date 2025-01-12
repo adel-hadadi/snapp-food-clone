@@ -18,6 +18,7 @@ func (s HttpServer) setRoutes(router chi.Router) http.Handler {
 	router.Route("/auth", func(r chi.Router) {
 		r.Post("/otp", s.Handlers.OTP.Send)
 		r.Post("/login-register", s.Handlers.Auth.LoginRegister)
+		r.Post("/refresh", s.Handlers.Auth.Refresh)
 	})
 
 	router.Route("/profile", func(r chi.Router) {

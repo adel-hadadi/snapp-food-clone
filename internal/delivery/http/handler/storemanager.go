@@ -4,8 +4,8 @@ import (
 	"context"
 	"net/http"
 
+	authservice "snapp-food/internal/service/auth"
 	otpservice "snapp-food/internal/service/otp"
-	tokenservice "snapp-food/internal/service/token"
 	"snapp-food/pkg/apperr"
 	"snapp-food/pkg/httpres"
 	"snapp-food/pkg/server/httpreq"
@@ -18,7 +18,7 @@ type StoreManagerHandler struct {
 }
 
 type storeManagerService interface {
-	Login(ctx context.Context, phone string, code int) (tokenservice.TokenRes, error)
+	Login(ctx context.Context, phone string, code int) (authservice.TokenRes, error)
 }
 
 func NewStoreManagerHandler(storeSvc storeService, otpSvc otpService, storeManagerSvc storeManagerService) StoreManagerHandler {
