@@ -11,9 +11,15 @@ import (
 	"time"
 
 	"github.com/go-co-op/gocron/v2"
+	"github.com/joho/godotenv"
 )
 
+const ErrLoadConfigFile = "error on loading config file: %w"
+
 func main() {
+	if err := godotenv.Load(); err != nil {
+		panic(fmt.Errorf(ErrLoadConfigFile, err))
+	}
 	db := database.New()
 
 	app := app.New(db)

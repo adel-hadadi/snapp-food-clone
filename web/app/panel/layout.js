@@ -16,7 +16,7 @@ export default function PanelLayout({ children }) {
 
   useEffect(() => {
     AxiosInstance.get("http://localhost/api/profile/addresses").then((res) =>
-      setAddresses(res.data.data),
+      setAddresses(res.data.data)
     );
   }, [isLoading]);
 
@@ -54,20 +54,6 @@ export default function PanelLayout({ children }) {
           <Cart />
         </div>
       </header>
-
-      <ToastContainer
-        position="top-right"
-        autoClose={5000}
-        hideProgressBar={false}
-        newestOnTop={false}
-        closeOnClick={false}
-        rtl={true}
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-        theme="light"
-        transition={Bounce}
-      />
 
       <div className="container mx-auto px-6">{children}</div>
     </>

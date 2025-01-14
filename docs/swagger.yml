@@ -1,0 +1,76 @@
+openapi: '3.0.3'
+info:
+  title: Snapp Food Clone
+  version: '1.0'
+servers:
+  - url: http://localhost/api
+paths:
+  /auth/otp:
+    post:
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SendOTP"
+            example:
+              phone: "9919999999"
+      summary: Send OTP Code to user phone number
+      responses:
+        '202':
+          description: OK
+
+  /auth/login-register:
+    post:
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginRegister"
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LoginRegisterRes"
+          description: ok
+
+components:
+  schemas:
+    User:
+      properties:
+        id:
+          type: integer
+        first_name:
+          type: string
+        last_name:
+          type: string
+        phone:
+          type: string
+        
+    SendOTP:
+      properties:
+        phone:
+          type: string
+
+    LoginRegister:
+      properties:
+        code:
+          type: integer
+        phone:
+          type: string
+          
+    TokenRes:
+      properties:
+        access_token:
+          type: string
+        refresh_toke:
+          type: string
+
+    LoginRegisterRes:
+      properties:
+        user:
+          $ref: "#/components/schemas/User"
+        token:
+          $ref: "#/components/schemas/TokenRes"

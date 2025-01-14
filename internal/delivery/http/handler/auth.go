@@ -16,7 +16,7 @@ type AuthHandler struct {
 }
 
 type authService interface {
-	LoginRegister(ctx context.Context, req authservice.LoginRegisterReq) (authservice.TokenRes, error)
+	LoginRegister(ctx context.Context, req authservice.LoginRegisterReq) (authservice.LoginRegisterRes, error)
 	GetAccessToken(ctx context.Context, refreshToken string) (string, error)
 }
 
@@ -34,12 +34,9 @@ func (h AuthHandler) LoginRegister(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if errs, ok := h.validator.ValidateLoginRegister(req); !ok {
-		httpres.ValidationErr(w, errs, http.StatusBadRequest)
-		return
-	}
+	// TODO: fix validation here
 
-	token, err := h.authSvc.LoginRegister(r.Context(), authservice.LoginRegisterReq{
+	userTokenRes, err := h.authSvc.LoginRegister(r.Context(), authservice.LoginRegisterReq{
 		Phone: req.Phone,
 		Code:  req.Code,
 	})
@@ -48,10 +45,7 @@ func (h AuthHandler) LoginRegister(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	httpres.Success(w, dto.LoginRegisterRes{
-		AccessToken:  token.AccessToken,
-		RefreshToken: token.RefreshToken,
-	}, http.StatusOK)
+	httpres.Success(w, userTokenRes, http.StatusOK)
 }
 
 type RefreshReq struct {

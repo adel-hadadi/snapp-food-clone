@@ -1,23 +1,18 @@
-FROM golang:1.23 AS builder
+FROM alpine:3.19
 
-WORKDIR /src
+ARG USER=docker
+ARG UID=1000
+ARG GID=1000
+ARG PW=docker
 
-COPY go.mod go.sum .
+RUN addgroup -g ${GID} ${USER} \
+    && adduser -D -u ${UID} -G ${USER} -h /home/${USER} -s /bin/ash ${USER} \
+    && echo "${USER}:${PW}" | chpasswd \
+    && mkdir /app \
+    && chown -R ${USER}:${USER} /app
 
-RUN go mod download
-
-COPY . .
-
-ENV GOCACHE=/root/.cache/go-build
-
-RUN --mount=type=cache,target="/root/.cache/go-build" cd ./cmd/cron && env GOOS=linux CGO_ENABLED=0 go build -o /bin/cronApp ./main.go
-
-FROM alpine:3.21.2 AS base
-
-WORKDIR /src
-
-COPY --from=builder /bin/cronApp /bin/cronApp
+COPY cronApp /app
 
 COPY .env .
 
-CMD [ "/bin/cronApp" ]
+CMD [ "/app/cronApp"]

@@ -4,7 +4,9 @@ import (
 	"context"
 
 	otpservice "snapp-food/internal/service/otp"
+	userservice "snapp-food/internal/service/user"
 	"snapp-food/pkg/apperr"
+	"snapp-food/pkg/convert"
 )
 
 type LoginRegisterReq struct {
@@ -17,14 +19,19 @@ type TokenRes struct {
 	RefreshToken string `json:"refresh_token"`
 }
 
-func (s Service) LoginRegister(ctx context.Context, req LoginRegisterReq) (TokenRes, error) {
+type LoginRegisterRes struct {
+	User  userservice.UserRes `json:"user"`
+	Token TokenRes            `json:"token"`
+}
+
+func (s Service) LoginRegister(ctx context.Context, req LoginRegisterReq) (LoginRegisterRes, error) {
 	err := s.otpSvc.Check(ctx, otpservice.OTPCheckReq{
 		Phone:  req.Phone,
 		Code:   req.Code,
 		Prefix: "user",
 	})
 	if err != nil {
-		return TokenRes{}, err
+		return LoginRegisterRes{}, err
 	}
 
 	const getUserSysMsg = "auth service get user"
@@ -34,12 +41,12 @@ func (s Service) LoginRegister(ctx context.Context, req LoginRegisterReq) (Token
 			const createUserSysMsg = "auth service create user"
 			user, err = s.userRepo.Create(ctx, req.Phone)
 			if err != nil {
-				return TokenRes{}, apperr.New(apperr.Unexpected).
+				return LoginRegisterRes{}, apperr.New(apperr.Unexpected).
 					WithErr(err).
 					WithSysMsg(createUserSysMsg)
 			}
 		} else {
-			return TokenRes{}, apperr.New(apperr.Unexpected).
+			return LoginRegisterRes{}, apperr.New(apperr.Unexpected).
 				WithErr(err).
 				WithSysMsg(getUserSysMsg)
 		}
@@ -47,8 +54,13 @@ func (s Service) LoginRegister(ctx context.Context, req LoginRegisterReq) (Token
 
 	act, rft, err := s.tokenSvc.GenerateTokens(ctx, user.ID)
 	if err != nil {
-		return TokenRes{}, err
+		return LoginRegisterRes{}, err
 	}
 
-	return TokenRes{AccessToken: act, RefreshToken: rft}, nil
+	userRes, _ := convert.ToStruct[userservice.UserRes](user)
+
+	return LoginRegisterRes{
+		User:  userRes,
+		Token: TokenRes{AccessToken: act, RefreshToken: rft},
+	}, nil
 }

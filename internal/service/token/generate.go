@@ -4,6 +4,7 @@ import (
 	"context"
 	"crypto/sha256"
 	"fmt"
+	"snapp-food/pkg/apperr"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
@@ -38,13 +39,14 @@ func (s Service) GenerateTokens(ctx context.Context, userID int) (string, string
 
 	refreshHash := hashToken(refreshToken)
 
+	const saveRefreshTokenSysMsg = "token service generate method"
 	if err := s.repo.Create(
 		ctx,
 		userID,
 		refreshHash,
 		refreshClaims.ExpiresAt.Time,
 	); err != nil {
-		return "", "", err
+		return "", "", apperr.New(apperr.Unexpected).WithErr(err).WithSysMsg(saveRefreshTokenSysMsg)
 	}
 
 	return accessToken, refreshToken, nil

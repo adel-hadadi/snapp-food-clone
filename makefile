@@ -4,10 +4,18 @@ include .env
 down:
 	docker compose down
 
-up-build:
+up-build: build-app build-cron
 	docker compose down
 	docker compose up -d --build
 	@docker compose logs -f
+
+build-app:
+	@echo "Building The App Binary"
+	env GOOS=linux CGO_ENABLED=0 go build -o ./webApp ./cmd/api/main.go
+
+build-cron:
+	@echo "Building The CronJob Binary"
+	env GOOS=linux CGO_ENABLED=0 go build -o ./cronApp ./cmd/cron/main.go
 
 up-front:
 	@cd ./web/ && npm run dev

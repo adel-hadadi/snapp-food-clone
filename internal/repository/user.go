@@ -34,14 +34,15 @@ func (r UserRepository) Create(ctx context.Context, phone string) (entity.User, 
 	ctx, cancel := context.WithTimeout(ctx, 3*time.Second)
 	defer cancel()
 
-	query := `INSERT INTO users (phone) VALUES($1)`
+	query := `INSERT INTO users (phone) VALUES($1) RETURNING(id)`
 
-	_, err := r.db.ExecContext(ctx, query, phone)
+	var createdID int
+	err := r.db.QueryRowContext(ctx, query, phone).Scan(&createdID)
 	if err != nil {
 		return entity.User{}, nil
 	}
 
-	return entity.User{Phone: phone}, nil
+	return entity.User{ID: createdID, Phone: phone}, nil
 }
 
 func (r UserRepository) GetByPhone(ctx context.Context, phone string) (entity.User, error) {

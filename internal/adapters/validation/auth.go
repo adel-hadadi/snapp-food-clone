@@ -1,32 +1,38 @@
 package validation
 
 import (
+	"fmt"
 	"snapp-food/internal/dto"
 
 	"github.com/rezakhademix/govalidator/v2"
 )
 
 const (
-	codeSize           = 4
+	codeLenSize        = 4
 	phoneNumberLenSize = 10
+
+	phoneIsRequiredMsg = "شماره تلفن اجبرای میباشد"
+	phoneNumberLenMsg  = "شماره تلفن باید %d رقم باشد"
+	codeIsRequiredMsg  = "کد تایید الزامی میباشد"
+	codeLenMsg         = "کد تایید باید %v رقم باشد"
 )
 
 type AuthValidation struct {
-	v govalidator.Validator
+	validator govalidator.Validator
 }
 
-func NewAuthValidation(v govalidator.Validator) AuthValidation {
+func NewAuthValidation(validator govalidator.Validator) AuthValidation {
 	return AuthValidation{
-		v: v,
+		validator: validator,
 	}
 }
 
 func (v AuthValidation) ValidateLoginRegister(req dto.AuthLoginRegisterReq) (map[string]string, bool) {
-	ok := v.v.RequiredString(req.Phone, "phone", "").
-		LenString(req.Phone, phoneNumberLenSize, "phone", "").
-		RequiredInt(req.Code, "phone", "").
-		LenInt(req.Code, codeSize, "code", "").
+	ok := v.validator.RequiredString(req.Phone, "phone", phoneIsRequiredMsg).
+		LenString(req.Phone, phoneNumberLenSize, "phone", fmt.Sprintf(phoneNumberLenMsg, phoneNumberLenSize)).
+		RequiredInt(req.Code, "code", codeIsRequiredMsg).
+		LenInt(req.Code, codeLenSize, "code", fmt.Sprintf(codeLenMsg, codeLenSize)).
 		IsPassed()
 
-	return v.v.Errors(), ok
+	return v.validator.Errors(), ok
 }
