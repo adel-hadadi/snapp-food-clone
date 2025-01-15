@@ -1,7 +1,9 @@
 package apperr
 
 import (
-	"log"
+	"snapp-food/pkg/logs"
+
+	"go.uber.org/zap"
 )
 
 type Type int
@@ -39,8 +41,7 @@ type AppErr struct {
 
 func (a *AppErr) Error() string {
 	if a.Type == Unexpected {
-		log.Printf("[%s]: %v", a.sysMsg, a.err)
-		// logger.NewLogger().Errorf("something bad happened, clientMsg: %s, sysMsg: %s, err: %s", a.clientMsg, a.sysMsg, a.err)
+		logs.NewLogger().Error(a.sysMsg, zap.String("error", a.err.Error()))
 	}
 
 	if a.clientMsg == "" {

@@ -5,3 +5,4 @@ cronApp
 .vscode
 .go/
 .go-cache/
+/tmp/logs/*

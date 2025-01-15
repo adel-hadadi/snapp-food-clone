@@ -6,6 +6,7 @@ import (
 	"snapp-food/cmd/app"
 	"snapp-food/data/database"
 	"snapp-food/internal/delivery/http"
+	"snapp-food/pkg/logs"
 
 	"github.com/joho/godotenv"
 )
@@ -16,6 +17,9 @@ func main() {
 	if err := godotenv.Load(); err != nil {
 		panic(fmt.Errorf(ErrLoadConfigFile, err))
 	}
+
+	logger := logs.NewLogger()
+	defer logger.Sync()
 
 	db := database.New()
 
