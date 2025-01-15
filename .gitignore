@@ -3,3 +3,5 @@ webApp
 cronApp
 .idea
 .vscode
+.go/
+.go-cache/

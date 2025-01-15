@@ -8,20 +8,38 @@ import Image from "next/image";
 import Cart from "./cart";
 import useAuthentication from "../hooks/useAuth";
 import AxiosInstance from "../utils/axiosInstance";
-import { ToastContainer } from "react-toastify";
+import Modal from "../components/modal";
 
 export default function PanelLayout({ children }) {
   const { user, isLoading } = useAuthentication();
   const [addresses, setAddresses] = useState([]);
+  const [showCompleteProfile, setShowCompleteProfile] = useState(false);
 
   useEffect(() => {
-    AxiosInstance.get("http://localhost/api/profile/addresses").then((res) =>
-      setAddresses(res.data.data)
-    );
-  }, [isLoading]);
+    if (isLoading) {
+      if (user?.first_name == "" || user?.last_name == "") {
+        setShowCompleteProfile(true);
+      }
+
+      AxiosInstance.get("http://localhost/api/profile/addresses").then((res) =>
+        setAddresses(res.data.data)
+      );
+    }
+  }, [isLoading, user]);
+
+  const handleToggleCompleteProfileModal = () => {
+    setShowCompleteProfile((p) => !p);
+  };
 
   return (
     <>
+      <Modal
+        handleToggleModal={handleToggleCompleteProfileModal}
+        title="تکمیل پروفایل"
+      >
+        <label>نام</label>
+        <input type="string" name="first_name" />
+      </Modal>
       <header className="flex justify-between items-center h-28 border-b-2 shadow px-10 mb-8">
         <div>
           <Link href="/panel">

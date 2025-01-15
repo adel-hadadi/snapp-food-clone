@@ -2,7 +2,6 @@ package handler
 
 import (
 	"context"
-	"log"
 	"net/http"
 	orderservice "snapp-food/internal/service/order"
 	"snapp-food/pkg/httpres"
@@ -62,7 +61,6 @@ func (h OrderHandler) Create(w http.ResponseWriter, r *http.Request) {
 
 func (h OrderHandler) List(w http.ResponseWriter, r *http.Request) {
 	userID := httpreq.AuthID(r)
-	log.Println("order list => ", userID)
 
 	orders, err := h.orderSvc.List(r.Context(), userID)
 	if err != nil {
