@@ -28,8 +28,8 @@ type (
 	}
 
 	OTPRepository interface {
-		Create(ctx context.Context, phone string, code int, prefix string) error
-		Check(ctx context.Context, phone string, code int, prefix string) (entity.OTP, error)
+		Create(ctx context.Context, phone, code, prefix string) error
+		Check(ctx context.Context, phone, code, prefix string) (entity.OTP, error)
 		Used(ctx context.Context, id int) error
 	}
 )

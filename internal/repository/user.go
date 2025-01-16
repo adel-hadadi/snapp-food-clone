@@ -18,7 +18,7 @@ func NewUserRepository(db *sqlx.DB) UserRepository {
 	}
 }
 
-func (r UserRepository) CheckExistsByPhoneNumber(ctx context.Context, phone string) (bool, error) {
+func (r UserRepository) ExistsByPhone(ctx context.Context, phone string) (bool, error) {
 	ctx, cancel := context.WithTimeout(ctx, 3*time.Second)
 	defer cancel()
 
@@ -30,19 +30,21 @@ func (r UserRepository) CheckExistsByPhoneNumber(ctx context.Context, phone stri
 	return exists, err
 }
 
-func (r UserRepository) Create(ctx context.Context, phone string) (entity.User, error) {
+func (r UserRepository) Create(ctx context.Context, user entity.User) (entity.User, error) {
 	ctx, cancel := context.WithTimeout(ctx, 3*time.Second)
 	defer cancel()
 
-	query := `INSERT INTO users (phone) VALUES($1) RETURNING(id)`
+	query := `INSERT INTO users (first_name, last_name, phone, national_id) VALUES($1, $2, $3, $4) RETURNING(id)`
 
 	var createdID int
-	err := r.db.QueryRowContext(ctx, query, phone).Scan(&createdID)
+	err := r.db.QueryRowContext(ctx, query, user.FirstName, user.LastName, user.Phone, user.NationalID).Scan(&createdID)
 	if err != nil {
-		return entity.User{}, nil
+		return entity.User{}, err
 	}
 
-	return entity.User{ID: createdID, Phone: phone}, nil
+	user.ID = createdID
+
+	return user, nil
 }
 
 func (r UserRepository) GetByPhone(ctx context.Context, phone string) (entity.User, error) {

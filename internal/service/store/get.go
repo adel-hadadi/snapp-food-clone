@@ -49,20 +49,17 @@ func (s Service) Find(ctx context.Context, slug string) (StoreRes, error) {
 	}
 
 	storeRes := StoreRes{
-		ID:               store.ID,
-		Name:             store.Name,
-		Slug:             store.Slug,
-		Rate:             store.Rate,
-		ManagerFirstName: store.ManagerFirstName,
-		ManagerLastName:  store.ManagerLastName,
-		Phone:            store.Phone,
-		Address:          store.Address,
-		Latitude:         store.Latitude,
-		Longitude:        store.Longitude,
-		Logo:             store.Logo,
-		StoreTypeID:      store.StoreTypeID,
-		CreatedAt:        store.CreatedAt,
-		UpdatedAt:        store.UpdatedAt,
+		ID:          store.ID,
+		Name:        store.Name,
+		Slug:        store.Slug,
+		Rate:        store.Rate,
+		Address:     store.Address,
+		Latitude:    store.Latitude,
+		Longitude:   store.Longitude,
+		Logo:        store.Logo,
+		StoreTypeID: store.StoreTypeID,
+		CreatedAt:   store.CreatedAt,
+		UpdatedAt:   store.UpdatedAt,
 
 		StoreType: storetypeservice.StoreType{
 			ID:    store.StoreType.ID,
@@ -102,19 +99,16 @@ func (s Service) List(ctx context.Context) ([]StoreRes, error) {
 	res := make([]StoreRes, 0, len(stores))
 	for i := range stores {
 		res = append(res, StoreRes{
-			ID:               stores[i].ID,
-			Name:             stores[i].Name,
-			Slug:             stores[i].Slug,
-			ManagerFirstName: stores[i].ManagerFirstName,
-			ManagerLastName:  stores[i].ManagerLastName,
-			Phone:            stores[i].Phone,
-			Address:          stores[i].Address,
-			Latitude:         stores[i].Latitude,
-			Longitude:        stores[i].Longitude,
-			Logo:             stores[i].Logo,
-			StoreTypeID:      stores[i].StoreTypeID,
-			CreatedAt:        stores[i].CreatedAt,
-			UpdatedAt:        stores[i].UpdatedAt,
+			ID:          stores[i].ID,
+			Name:        stores[i].Name,
+			Slug:        stores[i].Slug,
+			Address:     stores[i].Address,
+			Latitude:    stores[i].Latitude,
+			Longitude:   stores[i].Longitude,
+			Logo:        stores[i].Logo,
+			StoreTypeID: stores[i].StoreTypeID,
+			CreatedAt:   stores[i].CreatedAt,
+			UpdatedAt:   stores[i].UpdatedAt,
 
 			StoreType: storetypeservice.StoreType{
 				ID:    stores[i].StoreType.ID,
@@ -168,19 +162,16 @@ func (s Service) ListByProductCategory(ctx context.Context, userID int, productC
 	res := make([]StoreRes, 0, len(stores))
 	for i := range stores {
 		res = append(res, StoreRes{
-			ID:               stores[i].ID,
-			Name:             stores[i].Name,
-			Slug:             stores[i].Slug,
-			ManagerFirstName: stores[i].ManagerFirstName,
-			ManagerLastName:  stores[i].ManagerLastName,
-			Phone:            stores[i].Phone,
-			Address:          stores[i].Address,
-			Latitude:         stores[i].Latitude,
-			Longitude:        stores[i].Longitude,
-			Logo:             stores[i].Logo,
-			StoreTypeID:      stores[i].StoreTypeID,
-			CreatedAt:        stores[i].CreatedAt,
-			UpdatedAt:        stores[i].UpdatedAt,
+			ID:          stores[i].ID,
+			Name:        stores[i].Name,
+			Slug:        stores[i].Slug,
+			Address:     stores[i].Address,
+			Latitude:    stores[i].Latitude,
+			Longitude:   stores[i].Longitude,
+			Logo:        stores[i].Logo,
+			StoreTypeID: stores[i].StoreTypeID,
+			CreatedAt:   stores[i].CreatedAt,
+			UpdatedAt:   stores[i].UpdatedAt,
 
 			StoreType: storetypeservice.StoreType{
 				ID:    stores[i].StoreType.ID,
@@ -192,4 +183,23 @@ func (s Service) ListByProductCategory(ctx context.Context, userID int, productC
 	}
 
 	return res, nil
+}
+
+func (s Service) ListByManagerID(ctx context.Context, managerID int) ([]StoreRes, error) {
+	stores, err := s.repo.GetByManagerID(ctx, managerID)
+	if err != nil {
+		return nil, apperr.New(apperr.Unexpected).WithErr(err).WithSysMsg("retrive-list-of-stores")
+	}
+
+	storeRes := make([]StoreRes, 0, len(stores))
+	for _, store := range stores {
+		storeRes = append(storeRes, StoreRes{
+			ID:   store.ID,
+			Name: store.Name,
+			Logo: store.Logo,
+			Slug: store.Slug,
+		})
+	}
+
+	return storeRes, nil
 }

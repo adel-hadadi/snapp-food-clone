@@ -31,7 +31,7 @@ type tokenRepository interface {
 }
 
 type Claims struct {
-	UserID int `json:"user_id"`
+	User User `json:"user"`
 	jwt.RegisteredClaims
 }
 

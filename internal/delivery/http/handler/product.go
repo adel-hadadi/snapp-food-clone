@@ -40,7 +40,7 @@ func (h ProductHandler) Create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	storeID := r.Context().Value(middleware.StoreCtxKey).(float64)
+	storeID := r.Context().Value(middleware.SellerCtxKey).(float64)
 
 	if err := h.productSvc.Create(r.Context(), int(storeID), productservice.CreateProductReq{
 		Name:       req.Name,
@@ -68,7 +68,7 @@ type ProductRes struct {
 }
 
 func (h ProductHandler) List(w http.ResponseWriter, r *http.Request) {
-	storeID := r.Context().Value(middleware.StoreCtxKey).(float64)
+	storeID := r.Context().Value(middleware.SellerCtxKey).(float64)
 
 	products, err := h.productSvc.List(r.Context(), int(storeID))
 	if err != nil {

@@ -18,7 +18,7 @@ func NewOTPRepository(db *sqlx.DB) OTPRepository {
 	return OTPRepository{db: db}
 }
 
-func (r OTPRepository) Create(ctx context.Context, phone string, code int, prefix string) error {
+func (r OTPRepository) Create(ctx context.Context, phone, code, prefix string) error {
 	ctx, cancel := context.WithTimeout(ctx, 3*time.Second)
 	defer cancel()
 
@@ -29,7 +29,7 @@ func (r OTPRepository) Create(ctx context.Context, phone string, code int, prefi
 	return err
 }
 
-func (r OTPRepository) Check(ctx context.Context, phone string, code int, prefix string) (entity.OTP, error) {
+func (r OTPRepository) Check(ctx context.Context, phone, code, prefix string) (entity.OTP, error) {
 	ctx, cancel := context.WithTimeout(ctx, 3*time.Second)
 	defer cancel()
 

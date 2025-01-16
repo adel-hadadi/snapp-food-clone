@@ -19,6 +19,7 @@ type storeRepository interface {
 	ExistsByPhone(ctx context.Context, phone string) (bool, error)
 	Nearest(ctx context.Context, userID int) ([]entity.Store, error)
 	GetByProductCategory(ctx context.Context, userID int, productCategorySlug string) ([]entity.Store, error)
+	GetByManagerID(ctx context.Context, managerID int) ([]entity.Store, error)
 }
 
 type storeCategoryRepository interface {

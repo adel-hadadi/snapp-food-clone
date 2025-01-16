@@ -12,7 +12,6 @@ import (
 	provinceservice "snapp-food/internal/service/province"
 	storeservice "snapp-food/internal/service/store"
 	storecategoryservice "snapp-food/internal/service/storecategory"
-	storemanagerservice "snapp-food/internal/service/storemanager"
 	storetypeservice "snapp-food/internal/service/storetype"
 	tokenservice "snapp-food/internal/service/token"
 	userservice "snapp-food/internal/service/user"
@@ -27,7 +26,6 @@ type Services struct {
 	StoreType       storetypeservice.Service
 	UserAddress     useraddressservice.Service
 	Store           storeservice.Service
-	StoreManager    storemanagerservice.Service
 	Product         productserviec.Service
 	StoreCategory   storecategoryservice.Service
 	ProductCategory productcategoryservice.Service
@@ -54,7 +52,6 @@ func (a *Application) setupServices() {
 		StoreType:       storetypeservice.New(a.Repositories.StoreTypeRepo),
 		UserAddress:     useraddressservice.New(a.Repositories.UserAddressRepo),
 		Store:           storeservice.New(a.Repositories.StoreRepo, a.Repositories.StoreCategoryRepo),
-		StoreManager:    storemanagerservice.New(otpSvc, tokenSvc, a.Repositories.StoreRepo),
 		Product:         productserviec.New(a.Repositories.ProductRepo),
 		StoreCategory:   storecategoryservice.New(a.Repositories.StoreCategoryRepo),
 		ProductCategory: productcategoryservice.New(a.Repositories.ProductCategoryRepo),

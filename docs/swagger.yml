@@ -20,6 +20,19 @@ paths:
         '202':
           description: OK
 
+  /auth/sellers/otp:
+    post:
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SellerSendOTP"
+      summary: Send OTP Code to seller phone number
+      responses:
+        '202':
+          description: OK
+
   /auth/login-register:
     post:
       requestBody:
@@ -36,7 +49,56 @@ paths:
                 $ref: "#/components/schemas/LoginRegisterRes"
           description: ok
 
+  /auth/sellers/login-register:
+    post:
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginRegister"
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LoginRegisterRes"
+          description: ok
+
+  /auth/refresh:
+    post:
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RefreshTokenReq"
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RefreshTokenRes"
+          description: return new fresh access token
+
+  /sellers/dashboard/stores:
+    get:
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StoreRes"
+          description: return list of seller's stores
+
 components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
   schemas:
     User:
       properties:
@@ -53,11 +115,16 @@ components:
       properties:
         phone:
           type: string
+      
+    SellerSendOTP:
+      properties:
+        phone:
+          type: string
 
     LoginRegister:
       properties:
         code:
-          type: integer
+          type: string
         phone:
           type: string
           
@@ -70,7 +137,28 @@ components:
 
     LoginRegisterRes:
       properties:
-        user:
-          $ref: "#/components/schemas/User"
+        has_account:
+          type: boolean
         token:
           $ref: "#/components/schemas/TokenRes"
+      
+    RefreshTokenReq:
+      properties:
+        refresh_token:
+          type: string
+
+    RefreshTokenRes:
+      properties:
+        access_token:
+          type: string
+
+    StoreRes:
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        slug:
+          type: string
+        logo:
+          type: string

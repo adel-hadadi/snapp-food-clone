@@ -43,7 +43,7 @@ func (h StoreCategoryHandler) Create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	storeID := r.Context().Value(middleware.StoreCtxKey).(float64)
+	storeID := r.Context().Value(middleware.SellerCtxKey).(float64)
 
 	if err := h.storeCategorySvc.Create(r.Context(), int(storeID), req.Name); err != nil {
 		httpres.WithErr(w, err)

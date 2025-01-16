@@ -16,15 +16,19 @@ func (s HttpServer) setRoutes(router chi.Router) http.Handler {
 	})
 
 	router.Route("/auth", func(r chi.Router) {
-		r.Post("/otp", s.Handlers.OTP.Send)
+		r.Post("/otp", s.Handlers.Auth.SendCode)
+		r.Post("/sellers/otp", s.Handlers.Auth.SellersSendCode)
+
 		r.Post("/login-register", s.Handlers.Auth.LoginRegister)
+		r.Post("/sellers/login-register", s.Handlers.Auth.SellerLoginRegister)
+
 		r.Post("/refresh", s.Handlers.Auth.Refresh)
 	})
 
 	router.Route("/profile", func(r chi.Router) {
 		r.Use(middleware.Authenticate(s.TokenSvc))
-		r.Get("/personal-info", s.Handlers.Profile.PersonalInfo)
-		r.Put("/personal-info", s.Handlers.Profile.Update)
+		r.Get("/", s.Handlers.Profile.Get)
+		r.Put("/", s.Handlers.Profile.Update)
 
 		r.Get("/addresses", s.Handlers.Profile.GetAddresses)
 		r.Post("/addresses", s.Handlers.Profile.CreateAddress)
@@ -45,27 +49,22 @@ func (s HttpServer) setRoutes(router chi.Router) http.Handler {
 		r.Get("/product-categories/{slug}/stores", s.Handlers.Store.ListByProductCategory)
 	})
 
-	router.Route("/stores", func(r chi.Router) {
-		r.Post("/", s.Handlers.Store.Create)
-		r.Get("/{slug}", s.Handlers.Store.Find)
-		r.Get("/", s.Handlers.Store.List)
+	router.Route("/sellers/dashboard", func(r chi.Router) {
+		r.Use(middleware.DashboardAuthenticate(s.TokenSvc))
 
-		r.Post("/otp", s.Handlers.StoreManager.SendOTP)
-		r.Post("/login", s.Handlers.StoreManager.Login)
+		r.Get("/", s.Handlers.Store.Dashboard)
 
-		r.Route("/dashboard", func(r chi.Router) {
-			r.Use(middleware.DashboardAuthenticate(s.TokenSvc))
+		r.Route("/stores", func(r chi.Router) {
+			r.Get("/", s.Handlers.SellerStore.List)
+		})
 
-			r.Get("/", s.Handlers.Store.Dashboard)
+		r.Route("/products", func(r chi.Router) {
+			r.Post("/", s.Handlers.Product.Create)
+			r.Get("/", s.Handlers.Product.List)
+		})
 
-			r.Route("/products", func(r chi.Router) {
-				r.Post("/", s.Handlers.Product.Create)
-				r.Get("/", s.Handlers.Product.List)
-			})
-
-			r.Route("/categories", func(r chi.Router) {
-				r.Post("/", s.Handlers.StoreCategory.Create)
-			})
+		r.Route("/categories", func(r chi.Router) {
+			r.Post("/", s.Handlers.StoreCategory.Create)
 		})
 	})
 

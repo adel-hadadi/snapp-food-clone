@@ -4,7 +4,7 @@ services:
       context: .
       dockerfile: app.Dockerfile
     ports:
-      - "80:80"
+      - "127.0.0.1:80:80"
     volumes:
       - ./tmp/:/tmp
     depends_on:
@@ -42,7 +42,7 @@ services:
     volumes:
       - postgresql:/data/postgres
     ports:
-      - "5432:5432"
+      - "127.0.0.1:5432:5432"
     networks:
       - snapp-food
 

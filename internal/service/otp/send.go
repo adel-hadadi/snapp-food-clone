@@ -27,7 +27,7 @@ func (s Service) Send(ctx context.Context, req OTPSendReq) error {
 	}
 
 	const saveOTPCodeSysMSG = "otp service save otp code"
-	if err := s.otpRepo.Create(ctx, req.Phone, otpCode, req.Prefix); err != nil {
+	if err := s.otpRepo.Create(ctx, req.Phone, fmt.Sprintf("%v", otpCode), req.Prefix); err != nil {
 		return apperr.New(apperr.Unexpected).WithErr(err).WithSysMsg(saveOTPCodeSysMSG)
 	}
 

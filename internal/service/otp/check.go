@@ -9,7 +9,7 @@ import (
 type OTPCheckReq struct {
 	Phone  string
 	Prefix string
-	Code   int
+	Code   string
 }
 
 const OTPIsInvalid = "کد وارد شده اشتباه می‌باشد"

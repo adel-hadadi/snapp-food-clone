@@ -9,7 +9,7 @@ import (
 
 const (
 	authorizationKey = "Authorization"
-	UserCtxKey       = "userID"
+	UserCtxKey       = "user"
 )
 
 func Authenticate(tokenSvc tokenservice.Service) func(http.Handler) http.Handler {
@@ -34,7 +34,7 @@ func Authenticate(tokenSvc tokenservice.Service) func(http.Handler) http.Handler
 				return
 			}
 
-			ctx := context.WithValue(r.Context(), UserCtxKey, claims.UserID)
+			ctx := context.WithValue(r.Context(), UserCtxKey, claims.User)
 
 			next.ServeHTTP(w, r.WithContext(ctx))
 		})

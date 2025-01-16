@@ -10,9 +10,15 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 )
 
-func (s Service) GenerateTokens(ctx context.Context, userID int) (string, string, error) {
+type User struct {
+	ID          int    `json:"id"`
+	DisplayName string `json:"display_name"`
+	Role        string `json:"role"`
+}
+
+func (s Service) GenerateTokens(ctx context.Context, user User) (string, string, error) {
 	accessClaims := Claims{
-		UserID: userID,
+		User: user,
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(
 				time.Now().Add(AccessTokenExpireTime * time.Second),
@@ -25,7 +31,7 @@ func (s Service) GenerateTokens(ctx context.Context, userID int) (string, string
 	}
 
 	refreshClaims := Claims{
-		UserID: userID,
+		User: user,
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(
 				time.Now().Add(RefreshTokenExpireTime * time.Second),
@@ -42,7 +48,7 @@ func (s Service) GenerateTokens(ctx context.Context, userID int) (string, string
 	const saveRefreshTokenSysMsg = "token service generate method"
 	if err := s.repo.Create(
 		ctx,
-		userID,
+		user.ID,
 		refreshHash,
 		refreshClaims.ExpiresAt.Time,
 	); err != nil {
@@ -52,9 +58,9 @@ func (s Service) GenerateTokens(ctx context.Context, userID int) (string, string
 	return accessToken, refreshToken, nil
 }
 
-func (s Service) GenerateAccessToken(userID int) (string, error) {
+func (s Service) GenerateAccessToken(user User) (string, error) {
 	claims := Claims{
-		UserID: userID,
+		User: user,
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(
 				time.Now().Add(AccessTokenExpireTime * time.Second),

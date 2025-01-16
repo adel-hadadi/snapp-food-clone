@@ -4,12 +4,13 @@ import (
 	"encoding/json"
 	"net/http"
 	"snapp-food/internal/delivery/http/middleware"
+	tokenservice "snapp-food/internal/service/token"
 )
 
 func AuthID(r *http.Request) int {
 	userIDRaw := r.Context().Value(middleware.UserCtxKey)
 
-	return userIDRaw.(int)
+	return userIDRaw.(tokenservice.User).ID
 }
 
 func Bind[T any](r *http.Request) (T, error) {

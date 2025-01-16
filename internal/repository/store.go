@@ -22,9 +22,9 @@ func (r StoreRepository) Find(ctx context.Context, id int) (entity.Store, error)
 	defer cancel()
 
 	query := `SELECT 
-id, name, slug, logo, store_type_id, status, created_at,
-updated_at, manager_first_name, manager_last_name, phone, st_astext(location) 
-FROM stores WHERE id=$1`
+		id, name, slug, logo, store_type_id, status, created_at,
+		updated_at, st_astext(location) 
+		FROM stores WHERE id=$1`
 
 	var store entity.Store
 	err := r.db.QueryRowContext(ctx, query, id).Scan(
@@ -36,9 +36,6 @@ FROM stores WHERE id=$1`
 		&store.Status,
 		&store.CreatedAt,
 		&store.UpdatedAt,
-		&store.ManagerFirstName,
-		&store.ManagerLastName,
-		&store.Phone,
 		&store.Location,
 	)
 
@@ -51,7 +48,7 @@ func (r StoreRepository) FindBySlug(ctx context.Context, slug string) (entity.St
 
 	query := `SELECT 
         stores.id, stores.name, stores.slug, stores.logo, stores.store_type_id, stores.status, stores.created_at,
-        stores.updated_at, stores.manager_first_name, stores.manager_last_name, stores.phone, st_astext(location),
+        stores.updated_at, st_astext(location),
         stores.rate, store_types.id, store_types.name, store_types.image, store_types.url
     FROM stores
     LEFT JOIN store_types ON store_types.id = stores.store_type_id 
@@ -67,9 +64,6 @@ func (r StoreRepository) FindBySlug(ctx context.Context, slug string) (entity.St
 		&store.Status,
 		&store.CreatedAt,
 		&store.UpdatedAt,
-		&store.ManagerFirstName,
-		&store.ManagerLastName,
-		&store.Phone,
 		&store.Location,
 		&store.Rate,
 		&store.StoreType.ID,
@@ -89,7 +83,7 @@ func (r StoreRepository) FindByPhone(ctx context.Context, phone string) (entity.
 
 	query := `SELECT 
 id, name, slug, logo, store_type_id, status, created_at,
-updated_at, manager_first_name, manager_last_name, phone, st_astext(location) 
+updated_at, st_astext(location) 
 FROM stores WHERE phone=$1`
 
 	var store entity.Store
@@ -102,9 +96,6 @@ FROM stores WHERE phone=$1`
 		&store.Status,
 		&store.CreatedAt,
 		&store.UpdatedAt,
-		&store.ManagerFirstName,
-		&store.ManagerLastName,
-		&store.Phone,
 		&store.Location,
 	)
 
@@ -117,7 +108,7 @@ func (r StoreRepository) Get(ctx context.Context) ([]entity.Store, error) {
 
 	query := `SELECT 
 stores.id, stores.name, stores.slug, stores.logo, stores.store_type_id, stores.status, stores.created_at,
-stores.updated_at, stores.manager_first_name, stores.manager_last_name, stores.phone, st_astext(stores.location),
+stores.updated_at, st_astext(stores.location),
     store_types.id, store_types.name, store_types.url, store_types.image
 FROM stores LEFT JOIN store_types ON store_types.id = stores.store_type_id`
 
@@ -141,9 +132,6 @@ FROM stores LEFT JOIN store_types ON store_types.id = stores.store_type_id`
 			&store.Status,
 			&store.CreatedAt,
 			&store.UpdatedAt,
-			&store.ManagerFirstName,
-			&store.ManagerLastName,
-			&store.Phone,
 			&store.Location,
 
 			&store.StoreType.ID,
@@ -167,7 +155,7 @@ func (r StoreRepository) GetByProductCategory(ctx context.Context, userID int, p
 
 	query := `SELECT 
 		stores.id, stores.name, stores.slug, stores.logo, stores.store_type_id, stores.status, stores.created_at,
-		stores.updated_at, stores.manager_first_name, stores.manager_last_name, stores.phone, st_astext(stores.location),
+		stores.updated_at, st_astext(stores.location),
     	store_types.id, store_types.name, store_types.url, store_types.image
 	FROM stores 
 	LEFT JOIN store_types ON stores.store_type_id = store_types.id
@@ -195,9 +183,6 @@ func (r StoreRepository) GetByProductCategory(ctx context.Context, userID int, p
 			&store.Status,
 			&store.CreatedAt,
 			&store.UpdatedAt,
-			&store.ManagerFirstName,
-			&store.ManagerLastName,
-			&store.Phone,
 			&store.Location,
 
 			&store.StoreType.ID,
@@ -218,9 +203,9 @@ func (r StoreRepository) Create(ctx context.Context, store entity.Store) error {
 	defer cancel()
 
 	query := `INSERT INTO stores 
-		(name, slug, location, logo, manager_first_name, manager_last_name, phone, store_type_id, city_id) 
+		(name, slug, location, logo, phone, store_type_id, city_id) 
 		VALUES 
-		($1, $2, st_makepoint($3, $4), $5, $6, $7, $8, $9, $10)`
+		($1, $2, st_makepoint($3, $4), $5, $6, $7, $8, $9)`
 
 	_, err := r.db.ExecContext(
 		ctx,
@@ -230,9 +215,7 @@ func (r StoreRepository) Create(ctx context.Context, store entity.Store) error {
 		store.Latitude,
 		store.Longitude,
 		store.Logo,
-		store.ManagerFirstName,
-		store.ManagerLastName,
-		store.Phone,
+		store.ManagerID,
 		store.StoreTypeID,
 		store.CityID,
 	)
@@ -244,7 +227,7 @@ func (r StoreRepository) Update(ctx context.Context, id int, store entity.Store)
 	ctx, cancel := context.WithTimeout(ctx, 3*time.Second)
 	defer cancel()
 
-	query := `UPDATE stores SET name=$1, latitude=$2, longitude=$3, logo=$4, manager_first_name=$5, manager_last_name=$6, phone=$7, store_type_id=$8, status=$9 WHERE id=$10`
+	query := `UPDATE stores SET name=$1, latitude=$2, longitude=$3, logo=$4, store_type_id=$8, status=$9 WHERE id=$10`
 
 	_, err := r.db.ExecContext(
 		ctx,
@@ -253,9 +236,6 @@ func (r StoreRepository) Update(ctx context.Context, id int, store entity.Store)
 		store.Latitude,
 		store.Longitude,
 		store.Logo,
-		store.ManagerFirstName,
-		store.ManagerLastName,
-		store.Phone,
 		store.StoreTypeID,
 		store.Status,
 		id,
@@ -312,6 +292,35 @@ func (r StoreRepository) Nearest(ctx context.Context, userID int) ([]entity.Stor
 		}
 
 		stores = append(stores, store)
+	}
+
+	return stores, nil
+}
+
+func (r StoreRepository) GetByManagerID(ctx context.Context, managerID int) ([]entity.Store, error) {
+	ctx, cancel := context.WithTimeout(ctx, 3*time.Second)
+	defer cancel()
+
+	query := `SELECT id, name, slug, logo FROM stores where manager_id=$1`
+
+	rows, err := r.db.QueryContext(ctx, query, managerID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	stores := make([]entity.Store, 0)
+	for rows.Next() {
+		var store entity.Store
+		err := rows.Scan(
+			&store.ID,
+			&store.Name,
+			&store.Slug,
+			&store.Logo,
+		)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	return stores, nil

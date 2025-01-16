@@ -8,7 +8,7 @@ import (
 	tokenservice "snapp-food/internal/service/token"
 )
 
-const StoreCtxKey = "storeID"
+const SellerCtxKey = "user"
 
 func DashboardAuthenticate(tokenSvc tokenservice.Service) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
@@ -32,8 +32,11 @@ func DashboardAuthenticate(tokenSvc tokenservice.Service) func(http.Handler) htt
 			}
 
 			// TODO: check token is for an storage
+			if claims.User.Role != "seller" {
+				w.WriteHeader(http.StatusForbidden)
+			}
 
-			ctx := context.WithValue(r.Context(), StoreCtxKey, claims.UserID)
+			ctx := context.WithValue(r.Context(), SellerCtxKey, claims.User)
 
 			next.ServeHTTP(w, r.WithContext(ctx))
 		})

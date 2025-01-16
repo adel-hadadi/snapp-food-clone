@@ -3,35 +3,30 @@ package authservice
 import (
 	"context"
 
+	"snapp-food/internal/dto"
+	"snapp-food/internal/entity"
 	otpservice "snapp-food/internal/service/otp"
-	userservice "snapp-food/internal/service/user"
+	tokenservice "snapp-food/internal/service/token"
 	"snapp-food/pkg/apperr"
-	"snapp-food/pkg/convert"
 )
-
-type LoginRegisterReq struct {
-	Phone string
-	Code  int
-}
 
 type TokenRes struct {
 	AccessToken  string `json:"access_token"`
 	RefreshToken string `json:"refresh_token"`
 }
 
-type LoginRegisterRes struct {
-	User  userservice.UserRes `json:"user"`
-	Token TokenRes            `json:"token"`
-}
+func (s Service) LoginRegister(ctx context.Context, req dto.AuthLoginRegisterReq) (dto.LoginRegisterRes, error) {
+	exists, err := s.userRepo.ExistsByPhone(ctx, req.Phone)
+	if err != nil {
+		return dto.LoginRegisterRes{}, apperr.New(apperr.Unexpected).WithErr(err).WithSysMsg("check-user-exists")
+	}
 
-func (s Service) LoginRegister(ctx context.Context, req LoginRegisterReq) (LoginRegisterRes, error) {
-	err := s.otpSvc.Check(ctx, otpservice.OTPCheckReq{
+	if err := s.otpSvc.Check(ctx, otpservice.OTPCheckReq{
 		Phone:  req.Phone,
 		Code:   req.Code,
 		Prefix: "user",
-	})
-	if err != nil {
-		return LoginRegisterRes{}, err
+	}); err != nil {
+		return dto.LoginRegisterRes{}, err
 	}
 
 	const getUserSysMsg = "auth service get user"
@@ -39,28 +34,66 @@ func (s Service) LoginRegister(ctx context.Context, req LoginRegisterReq) (Login
 	if err != nil {
 		if apperr.IsSQLNoRows(err) {
 			const createUserSysMsg = "auth service create user"
-			user, err = s.userRepo.Create(ctx, req.Phone)
+			user, err = s.userRepo.Create(ctx, entity.User{Phone: req.Phone})
 			if err != nil {
-				return LoginRegisterRes{}, apperr.New(apperr.Unexpected).
+				return dto.LoginRegisterRes{}, apperr.New(apperr.Unexpected).
 					WithErr(err).
 					WithSysMsg(createUserSysMsg)
 			}
 		} else {
-			return LoginRegisterRes{}, apperr.New(apperr.Unexpected).
+			return dto.LoginRegisterRes{}, apperr.New(apperr.Unexpected).
 				WithErr(err).
 				WithSysMsg(getUserSysMsg)
 		}
 	}
 
-	act, rft, err := s.tokenSvc.GenerateTokens(ctx, user.ID)
+	act, rft, err := s.tokenSvc.GenerateTokens(ctx, tokenservice.User{
+		ID:          user.ID,
+		DisplayName: user.FullName(),
+		Role:        "customer",
+	})
 	if err != nil {
-		return LoginRegisterRes{}, err
+		return dto.LoginRegisterRes{}, err
 	}
 
-	userRes, _ := convert.ToStruct[userservice.UserRes](user)
+	return dto.LoginRegisterRes{
+		HasAccount: exists,
+		Token:      dto.TokenRes{AccessToken: act, RefreshToken: rft},
+	}, nil
+}
 
-	return LoginRegisterRes{
-		User:  userRes,
-		Token: TokenRes{AccessToken: act, RefreshToken: rft},
+func (s Service) SellerLoginRegister(ctx context.Context, req dto.AuthLoginRegisterReq) (dto.LoginRegisterRes, error) {
+	exists, err := s.userRepo.ExistsByPhone(ctx, req.Phone)
+	if err != nil {
+		return dto.LoginRegisterRes{}, apperr.New(apperr.Unexpected).WithErr(err).WithSysMsg("check-user-exists")
+	}
+
+	if err := s.otpSvc.Check(ctx, otpservice.OTPCheckReq{
+		Phone:  req.Phone,
+		Code:   req.Code,
+		Prefix: "seller",
+	}); err != nil {
+		return dto.LoginRegisterRes{}, err
+	}
+
+	user, err := s.userRepo.GetByPhone(ctx, req.Phone)
+	if apperr.IsSQLNoRows(err) {
+		return dto.LoginRegisterRes{}, apperr.New(apperr.Invalid)
+	} else if err != nil {
+		return dto.LoginRegisterRes{}, apperr.New(apperr.Unexpected).WithErr(err).WithSysMsg("get-user-by-phone")
+	}
+
+	act, rft, err := s.tokenSvc.GenerateTokens(ctx, tokenservice.User{
+		ID:          user.ID,
+		DisplayName: user.FullName(),
+		Role:        "seller",
+	})
+
+	return dto.LoginRegisterRes{
+		HasAccount: exists,
+		Token: dto.TokenRes{
+			AccessToken:  act,
+			RefreshToken: rft,
+		},
 	}, nil
 }

@@ -1,12 +1,10 @@
 package handler
 
 import (
-	"context"
-	"log"
 	"net/http"
-	"strings"
 	"time"
 
+	"snapp-food/internal/dto"
 	storeservice "snapp-food/internal/service/store"
 	"snapp-food/pkg/httpres"
 	"snapp-food/pkg/server/httpreq"
@@ -15,58 +13,23 @@ import (
 )
 
 type StoreHandler struct {
-	storeSvc storeService
+	storeSvc storeservice.Service
 }
 
-type storeService interface {
-	Create(ctx context.Context, req storeservice.CreateReq) error
-	Find(ctx context.Context, slug string) (storeservice.StoreRes, error)
-	List(ctx context.Context) ([]storeservice.StoreRes, error)
-	ExistsByPhone(ctx context.Context, phone string) (bool, error)
-	Nearest(ctx context.Context, userID int) ([]storeservice.StoreRes, error)
-	ListByProductCategory(ctx context.Context, userID int, slug string) ([]storeservice.StoreRes, error)
-}
-
-func NewStoreHandler(storeSvc storeService) StoreHandler {
+func NewStoreHandler(storeSvc storeservice.Service) StoreHandler {
 	return StoreHandler{storeSvc: storeSvc}
 }
 
-type CreateStoreReq struct {
-	Name             string  `json:"name"`
-	Latitude         float64 `json:"latitude"`
-	Longitude        float64 `json:"longitude"`
-	Address          string  `json:"address"`
-	StoreTypeID      int     `json:"store_type_id"`
-	Logo             string  `json:"logo"`
-	Phone            string  `json:"phone"`
-	ManagerFirstName string  `json:"manager_first_name"`
-	ManagerLastName  string  `json:"manager_last_name"`
-	CityID           int     `json:"city_id"`
-}
-
 func (h StoreHandler) Create(w http.ResponseWriter, r *http.Request) {
-	req, err := httpreq.Bind[CreateStoreReq](r)
+	req, err := httpreq.Bind[dto.StoreCreateReq](r)
 	if err != nil {
 		httpres.WithErr(w, err)
 		return
 	}
 
-	if strings.HasPrefix(req.Phone, "0") {
-		req.Phone = req.Phone[1:]
-	}
+	req.ManagerID = httpreq.AuthID(r)
 
-	if err := h.storeSvc.Create(r.Context(), storeservice.CreateReq{
-		Name:             req.Name,
-		Phone:            req.Phone,
-		ManagerFirstName: req.ManagerFirstName,
-		ManagerLastName:  req.ManagerLastName,
-		Address:          req.Address,
-		StoreTypeID:      req.StoreTypeID,
-		Latitude:         req.Latitude,
-		Longitude:        req.Longitude,
-		Logo:             req.Logo,
-		CityID:           req.CityID,
-	}); err != nil {
+	if err := h.storeSvc.Create(r.Context(), req); err != nil {
 		httpres.WithErr(w, err)
 		return
 	}
@@ -152,8 +115,6 @@ func (h StoreHandler) ListByProductCategory(w http.ResponseWriter, r *http.Reque
 }
 
 func (h StoreHandler) Dashboard(w http.ResponseWriter, r *http.Request) {
-	log.Println("dashboard")
-
 	w.Write([]byte("hello store manager"))
 }
 

@@ -14,3 +14,10 @@ type User struct {
 
 	DefaultAddressID *int `json:"default_address_id" db:"default_address_id"`
 }
+
+func (u User) FullName() string {
+	if u.FirstName == nil && u.LastName == nil {
+		return ""
+	}
+	return *u.FirstName + " " + *u.LastName
+}

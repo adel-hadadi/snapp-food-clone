@@ -1,7 +1,7 @@
 package apperr
 
 import (
-	"snapp-food/pkg/logs"
+	"snapp-food/pkg/logger"
 
 	"go.uber.org/zap"
 )
@@ -19,7 +19,7 @@ const (
 	ForbiddenClientMsg    = "forbidden"
 	UnAuthorizedClientMsg = "unauthorized"
 	NotFoundClientMsg     = "not found"
-	ConflictClientMsg     = "DuplicateEntry"
+	ConflictClientMsg     = "اطلاعات وارد شده تکراری می‌باشد"
 	UnexpectedClientMsg   = "Unexpected"
 	DefaultClientMsg      = "Unexpected"
 )
@@ -41,7 +41,7 @@ type AppErr struct {
 
 func (a *AppErr) Error() string {
 	if a.Type == Unexpected {
-		logs.NewLogger().Error(a.sysMsg, zap.String("error", a.err.Error()))
+		logger.NewLogger().Error(a.sysMsg, zap.String("error", a.err.Error()))
 	}
 
 	if a.clientMsg == "" {

@@ -41,7 +41,7 @@ type PersonalInfoRes struct {
 	DefaultAddressID *int    `json:"default_address_id"`
 }
 
-func (h ProfileHandler) PersonalInfo(w http.ResponseWriter, r *http.Request) {
+func (h ProfileHandler) Get(w http.ResponseWriter, r *http.Request) {
 	userID := httpreq.AuthID(r)
 
 	user, err := h.userSvc.Get(r.Context(), userID)

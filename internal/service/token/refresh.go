@@ -20,7 +20,7 @@ func (s Service) RefreshAccessToken(ctx context.Context, refreshToken string) (s
 	refreshHash := hashToken(refreshToken)
 
 	const retriveTokenFromDatabaseSysMSG = "token service retrive token from database"
-	_, err = s.repo.Get(ctx, claims.UserID, refreshHash)
+	_, err = s.repo.Get(ctx, claims.User.ID, refreshHash)
 	if err != nil {
 		if apperr.IsSQLNoRows(err) {
 			return "", apperr.New(apperr.Unauthorized)
@@ -36,5 +36,5 @@ func (s Service) RefreshAccessToken(ctx context.Context, refreshToken string) (s
 	// 	return "", errors.New("refresh token expired")
 	// }
 
-	return s.GenerateAccessToken(claims.UserID)
+	return s.GenerateAccessToken(claims.User)
 }
