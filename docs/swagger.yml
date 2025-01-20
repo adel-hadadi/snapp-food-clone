@@ -92,6 +92,21 @@ paths:
               schema:
                 $ref: "#/components/schemas/StoreRes"
           description: return list of seller's stores
+    post:
+      security:
+        - bearerAuth: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateStoreReq"
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StoreRes"
+          description: created new store and associate it to authenticated user
 
 components:
   securitySchemes:
@@ -160,5 +175,18 @@ components:
           type: string
         slug:
           type: string
+        logo:
+          type: string
+
+    CreateStoreReq:
+      properties:
+        name:
+          type: string
+        store_type_id:
+          type: integer
+        address:
+          type: string
+        city_id:
+          type: integer
         logo:
           type: string

@@ -21,6 +21,7 @@ func (s Service) Create(ctx context.Context, req dto.StoreCreateReq) error {
 		Logo:        req.Logo,
 		StoreTypeID: req.StoreTypeID,
 		CityID:      &req.CityID,
+		ManagerID:   req.ManagerID,
 	})
 	if err != nil {
 		return apperr.New(apperr.Unexpected).WithErr(err).WithSysMsg(createStoreSysMsg)

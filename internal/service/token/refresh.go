@@ -2,7 +2,6 @@ package tokenservice
 
 import (
 	"context"
-	"errors"
 	"snapp-food/pkg/apperr"
 
 	"github.com/golang-jwt/jwt/v5"
@@ -14,7 +13,7 @@ func (s Service) RefreshAccessToken(ctx context.Context, refreshToken string) (s
 		return []byte(s.refreshSecret), nil
 	})
 	if err != nil || !token.Valid {
-		return "", errors.New("invalid or expired refresh token")
+		return "", apperr.New(apperr.Unauthorized)
 	}
 
 	refreshHash := hashToken(refreshToken)

@@ -203,9 +203,9 @@ func (r StoreRepository) Create(ctx context.Context, store entity.Store) error {
 	defer cancel()
 
 	query := `INSERT INTO stores 
-		(name, slug, location, logo, phone, store_type_id, city_id) 
+		(name, slug, location, logo, manager_id, store_type_id, city_id) 
 		VALUES 
-		($1, $2, st_makepoint($3, $4), $5, $6, $7, $8, $9)`
+		($1, $2, st_makepoint($3, $4), $5, $6, $7, $8)`
 
 	_, err := r.db.ExecContext(
 		ctx,
@@ -312,15 +312,16 @@ func (r StoreRepository) GetByManagerID(ctx context.Context, managerID int) ([]e
 	stores := make([]entity.Store, 0)
 	for rows.Next() {
 		var store entity.Store
-		err := rows.Scan(
+		if err := rows.Scan(
 			&store.ID,
 			&store.Name,
 			&store.Slug,
 			&store.Logo,
-		)
-		if err != nil {
+		); err != nil {
 			return nil, err
 		}
+
+		stores = append(stores, store)
 	}
 
 	return stores, nil

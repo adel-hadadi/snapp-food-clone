@@ -56,6 +56,7 @@ func (s HttpServer) setRoutes(router chi.Router) http.Handler {
 
 		r.Route("/stores", func(r chi.Router) {
 			r.Get("/", s.Handlers.SellerStore.List)
+			r.Post("/", s.Handlers.SellerStore.Create)
 		})
 
 		r.Route("/products", func(r chi.Router) {

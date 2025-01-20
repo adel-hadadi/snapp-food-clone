@@ -120,19 +120,16 @@ func (h StoreHandler) Dashboard(w http.ResponseWriter, r *http.Request) {
 
 func (h StoreHandler) DTOToRes(store storeservice.StoreRes) StoreRes {
 	return StoreRes{
-		ID:               store.ID,
-		Name:             store.Name,
-		Slug:             store.Slug,
-		ManagerFirstName: store.ManagerFirstName,
-		ManagerLastName:  store.ManagerLastName,
-		Phone:            store.Phone,
-		Address:          store.Address,
-		Latitude:         store.Latitude,
-		Longitude:        store.Longitude,
-		Logo:             store.Logo,
-		StoreTypeID:      store.StoreTypeID,
-		CreatedAt:        store.CreatedAt,
-		UpdatedAt:        store.UpdatedAt,
+		ID:          store.ID,
+		Name:        store.Name,
+		Slug:        store.Slug,
+		Address:     store.Address,
+		Latitude:    store.Latitude,
+		Longitude:   store.Longitude,
+		Logo:        store.Logo,
+		StoreTypeID: store.StoreTypeID,
+		CreatedAt:   store.CreatedAt,
+		UpdatedAt:   store.UpdatedAt,
 
 		StoreType: StoreTypeRes{
 			ID:    store.StoreType.ID,

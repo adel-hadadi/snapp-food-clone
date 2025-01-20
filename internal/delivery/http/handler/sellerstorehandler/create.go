@@ -14,6 +14,8 @@ func (h Handler) Create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	req.ManagerID = httpreq.AuthID(r)
+
 	err = h.storeSvc.Create(r.Context(), req)
 	if err != nil {
 		httpres.WithErr(w, err)

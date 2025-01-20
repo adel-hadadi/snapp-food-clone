@@ -5,26 +5,24 @@ import (
 	"snapp-food/pkg/convert"
 	"time"
 
+	"snapp-food/internal/dto"
 	productserviec "snapp-food/internal/service/auth/product"
 	storetypeservice "snapp-food/internal/service/storetype"
 	"snapp-food/pkg/apperr"
 )
 
 type StoreRes struct {
-	ID               int       `json:"id"`
-	Name             string    `json:"name"`
-	Slug             string    `json:"slug"`
-	Rate             float32   `json:"rate"`
-	ManagerFirstName string    `json:"manager_first_name"`
-	ManagerLastName  string    `json:"manager_last_name"`
-	Phone            string    `json:"phone"`
-	Address          string    `json:"address"`
-	Latitude         float64   `json:"latitude"`
-	Longitude        float64   `json:"longitude"`
-	Logo             string    `json:"logo"`
-	StoreTypeID      int       `json:"store_type_id"`
-	CreatedAt        time.Time `json:"created_at"`
-	UpdatedAt        time.Time `json:"updated_at"`
+	ID          int       `json:"id"`
+	Name        string    `json:"name"`
+	Slug        string    `json:"slug"`
+	Rate        float32   `json:"rate"`
+	Address     string    `json:"address"`
+	Latitude    float64   `json:"latitude"`
+	Longitude   float64   `json:"longitude"`
+	Logo        string    `json:"logo"`
+	StoreTypeID int       `json:"store_type_id"`
+	CreatedAt   time.Time `json:"created_at"`
+	UpdatedAt   time.Time `json:"updated_at"`
 
 	Categories []CategoryRes              `json:"categories"`
 	StoreType  storetypeservice.StoreType `json:"store_type"`
@@ -185,15 +183,15 @@ func (s Service) ListByProductCategory(ctx context.Context, userID int, productC
 	return res, nil
 }
 
-func (s Service) ListByManagerID(ctx context.Context, managerID int) ([]StoreRes, error) {
+func (s Service) ListByManagerID(ctx context.Context, managerID int) ([]dto.StoreRes, error) {
 	stores, err := s.repo.GetByManagerID(ctx, managerID)
 	if err != nil {
 		return nil, apperr.New(apperr.Unexpected).WithErr(err).WithSysMsg("retrive-list-of-stores")
 	}
 
-	storeRes := make([]StoreRes, 0, len(stores))
+	storeRes := make([]dto.StoreRes, 0, len(stores))
 	for _, store := range stores {
-		storeRes = append(storeRes, StoreRes{
+		storeRes = append(storeRes, dto.StoreRes{
 			ID:   store.ID,
 			Name: store.Name,
 			Logo: store.Logo,
