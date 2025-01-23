@@ -4,7 +4,7 @@ on:
     branches:
       - main
       - master
-    pull_request:
+  pull_request:
 
 permissions:
   contents: read
@@ -18,7 +18,7 @@ jobs:
       - uses: actions/setup-go@v5
         with:
           go-version: stable
-      -name: golangci-lint
+      - name: golangci-lint
         uses: golangci/golangci-lint-action@v6
         with:
           version: v1.60
