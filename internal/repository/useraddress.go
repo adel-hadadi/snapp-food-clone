@@ -2,7 +2,6 @@ package repository
 
 import (
 	"context"
-	"log"
 	"time"
 
 	"snapp-food/internal/entity"
@@ -80,8 +79,6 @@ func (r UserAddressRepository) Create(ctx context.Context, userID int, address e
 	query := `INSERT INTO user_addresses 
 		(name, location, user_id, city_id, province_id, address, detail) 
 		VALUES ($1, st_makepoint($2, $3), $4, $5, $6, $7, $8)`
-
-	log.Printf("user address %+v", address)
 
 	_, err := r.db.ExecContext(
 		ctx,
